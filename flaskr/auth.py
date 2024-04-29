@@ -14,26 +14,26 @@ def registro_aluno():
     if request.method == 'POST':
         # Recebe os dados do formulário
         matricula = request.form['matricula']
-        password = request.form['password']
+        senha = request.form['senha']
         db = get_db()
         error = None
 
         if not matricula:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
+            error = 'Matricula is required.'
+        elif not senha:
+            error = 'Senha is required.'
 
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO aluno (matricula, password) VALUES (?, ?)",
-                    (matricula, generate_password_hash(password)),
+                    "INSERT INTO aluno (matricula, senha) VALUES (?, ?)",
+                    (matricula, generate_password_hash(senha)),
                 )
                 db.commit()
             except db.IntegrityError:
                 error = f"User {matricula} is already registered."
             else:
-                return redirect(url_for("auth.login"))
+                return redirect(url_for("auth.login_aluno"))
 
         flash(error)
 
@@ -44,26 +44,26 @@ def registro_professor():
     if request.method == 'POST':
         # Recebe os dados do formulário
         matricula = request.form['matricula']
-        password = request.form['password']
+        senha = request.form['senha']
         db = get_db()
         error = None
 
         if not matricula:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
+            error = 'Matricula is required.'
+        elif not senha:
+            error = 'Senha is required.'
 
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO professor (matricula, password) VALUES (?, ?)",
-                    (matricula, generate_password_hash(password)),
+                    "INSERT INTO professor (matricula, senha) VALUES (?, ?)",
+                    (matricula, generate_password_hash(senha)),
                 )
                 db.commit()
             except db.IntegrityError:
                 error = f"User {matricula} is already registered."
             else:
-                return redirect(url_for("auth.login"))
+                return redirect(url_for("auth.login_professor"))
 
         flash(error)
 
@@ -73,21 +73,21 @@ def registro_professor():
 def login_aluno():
     if request.method == 'POST':
         matricula = request.form['matricula']
-        password = request.form['password']
+        senha = request.form['senha']
         db = get_db()
         error = None
-        user = db.execute(
+        aluno = db.execute(
             'SELECT * FROM aluno WHERE matricula = ?', (matricula,)
         ).fetchone()
 
-        if user is None:
+        if aluno is None:
             error = 'Incorrect matricula.'
-        elif not check_password_hash(user['password'], password):
-            error = 'Incorrect password.'
+        elif not check_password_hash(aluno['senha'], senha):
+            error = 'Senha incorreta.'
 
         if error is None:
             session.clear()
-            session['user_id'] = user['id']
+            session['user_id'] = aluno['id']
             return redirect(url_for('index'))
 
         flash(error)
@@ -98,21 +98,21 @@ def login_aluno():
 def login_professor():
     if request.method == 'POST':
         matricula = request.form['matricula']
-        password = request.form['password']
+        senha = request.form['senha']
         db = get_db()
         error = None
-        user = db.execute(
+        professor = db.execute(
             'SELECT * FROM professor WHERE matricula = ?', (matricula,)
         ).fetchone()
 
-        if user is None:
+        if professor is None:
             error = 'Incorrect matricula.'
-        elif not check_password_hash(user['password'], password):
-            error = 'Incorrect password.'
+        elif not check_password_hash(professor['senha'], senha):
+            error = 'Incorrect senha.'
 
         if error is None:
             session.clear()
-            session['user_id'] = user['id']
+            session['user_id'] = professor['id']
             return redirect(url_for('index'))
 
         flash(error)
@@ -124,9 +124,9 @@ def load_logged_in_user():
     user_id = session.get('user_id')
 
     if user_id is None:
-        g.user = None
+        g.aluno = None
     else:
-        g.user = get_db().execute(
+        g.aluno = get_db().execute(
             'SELECT * FROM aluno WHERE id = ?', (user_id,)
         ).fetchone()
 
@@ -140,7 +140,7 @@ def logout():
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if g.user is None:
+        if g.aluno is None:
             return redirect(url_for('auth.login_aluno'))
 
         return view(**kwargs)

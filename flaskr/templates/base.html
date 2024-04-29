@@ -4,9 +4,10 @@
 <nav>
   <h1>Ibmec Coin</h1>
   <ul>
-    {% if g.user %}
-      <li><span>{{ g.user['username'] }}</span>
+    {% if g.aluno %}
+      <li><span>{{ g.aluno['matricula'] }}</span>
       <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
+      <li><a href="{{ url_for('blog.saldo')}}">Ver saldo</a>
     {% else %}
       <li><a href="{{ url_for('auth.registro_aluno') }}">Registro - Aluno</a>
     <li><a href="{{ url_for('auth.registro_professor') }}">Registro - Professor</a>
