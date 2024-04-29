@@ -1,15 +1,18 @@
 <!doctype html>
-<title>{% block title %}{% endblock %} - Flaskr</title>
+<title>{% block title %}{% endblock %} - Ibmec Coin</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <nav>
-  <h1>Flaskr</h1>
+  <h1>Ibmec Coin</h1>
   <ul>
     {% if g.user %}
       <li><span>{{ g.user['username'] }}</span>
       <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
     {% else %}
-      <li><a href="{{ url_for('auth.register') }}">Register</a>
-      <li><a href="{{ url_for('auth.login') }}">Log In</a>
+      <li><a href="{{ url_for('auth.registro_aluno') }}">Registro - Aluno</a>
+    <li><a href="{{ url_for('auth.registro_professor') }}">Registro - Professor</a>
+      <li><a href="{{ url_for('auth.login_aluno') }}">Log In - Aluno</a>
+    <li><a href="{{ url_for('auth.login_professor') }}">Log In - Professor</a>
+
     {% endif %}
   </ul>
 </nav>

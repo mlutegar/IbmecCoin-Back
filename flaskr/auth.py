@@ -9,17 +9,16 @@ from flaskr.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-
-@bp.route('/register', methods=('GET', 'POST'))
-def register():
+@bp.route('/registro_aluno', methods=('GET', 'POST'))
+def registro_aluno():
     if request.method == 'POST':
         # Recebe os dados do formulário
-        username = request.form['username']
+        matricula = request.form['matricula']
         password = request.form['password']
         db = get_db()
         error = None
 
-        if not username:
+        if not matricula:
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
@@ -27,33 +26,62 @@ def register():
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
+                    "INSERT INTO aluno (matricula, password) VALUES (?, ?)",
+                    (matricula, generate_password_hash(password)),
                 )
                 db.commit()
             except db.IntegrityError:
-                error = f"User {username} is already registered."
+                error = f"User {matricula} is already registered."
             else:
                 return redirect(url_for("auth.login"))
 
         flash(error)
 
-    return render_template('auth/register.html')
+    return render_template('auth/registro_aluno.html')
 
-
-@bp.route('/login', methods=('GET', 'POST'))
-def login():
+@bp.route('/registro_professor', methods=('GET', 'POST'))
+def registro_professor():
     if request.method == 'POST':
-        username = request.form['username']
+        # Recebe os dados do formulário
+        matricula = request.form['matricula']
+        password = request.form['password']
+        db = get_db()
+        error = None
+
+        if not matricula:
+            error = 'Username is required.'
+        elif not password:
+            error = 'Password is required.'
+
+        if error is None:
+            try:
+                db.execute(
+                    "INSERT INTO professor (matricula, password) VALUES (?, ?)",
+                    (matricula, generate_password_hash(password)),
+                )
+                db.commit()
+            except db.IntegrityError:
+                error = f"User {matricula} is already registered."
+            else:
+                return redirect(url_for("auth.login"))
+
+        flash(error)
+
+    return render_template('auth/registro_professor.html')
+
+@bp.route('/login_aluno', methods=('GET', 'POST'))
+def login_aluno():
+    if request.method == 'POST':
+        matricula = request.form['matricula']
         password = request.form['password']
         db = get_db()
         error = None
         user = db.execute(
-            'SELECT * FROM user WHERE username = ?', (username,)
+            'SELECT * FROM aluno WHERE matricula = ?', (matricula,)
         ).fetchone()
 
         if user is None:
-            error = 'Incorrect username.'
+            error = 'Incorrect matricula.'
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
 
@@ -64,8 +92,32 @@ def login():
 
         flash(error)
 
-    return render_template('auth/login.html')
+    return render_template('auth/login_aluno.html')
 
+@bp.route('/login_professor', methods=('GET', 'POST'))
+def login_professor():
+    if request.method == 'POST':
+        matricula = request.form['matricula']
+        password = request.form['password']
+        db = get_db()
+        error = None
+        user = db.execute(
+            'SELECT * FROM professor WHERE matricula = ?', (matricula,)
+        ).fetchone()
+
+        if user is None:
+            error = 'Incorrect matricula.'
+        elif not check_password_hash(user['password'], password):
+            error = 'Incorrect password.'
+
+        if error is None:
+            session.clear()
+            session['user_id'] = user['id']
+            return redirect(url_for('index'))
+
+        flash(error)
+
+    return render_template('auth/login_professor.html')
 
 @bp.before_app_request
 def load_logged_in_user():
@@ -75,7 +127,7 @@ def load_logged_in_user():
         g.user = None
     else:
         g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
+            'SELECT * FROM aluno WHERE id = ?', (user_id,)
         ).fetchone()
 
 
@@ -89,7 +141,7 @@ def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('auth.login_aluno'))
 
         return view(**kwargs)
 

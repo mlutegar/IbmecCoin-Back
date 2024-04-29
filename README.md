@@ -2,6 +2,22 @@
 
 Este repositório contém o back end desenvolvido para o projeto IBMEC COIN, uma iniciativa da faculdade IBMEC que visa criar uma moeda virtual para incentivar os alunos em sala de aula.
 
+## Executar
+
+Para executar o back end, siga os passos abaixo:
+
+Para iniciar o servidor, execute o comando abaixo:
+
+```bash
+flask --app flaskr run --debug
+```
+
+Rode o comando abaixo para criar o banco de dados:
+
+```bash
+flask --app flaskr init-db
+```
+
 ## Sobre o Projeto
 
 O projeto IBMEC COIN tem como objetivo principal promover o engajamento dos alunos por meio de uma moeda virtual utilizada como recompensa dentro da sala de aula. Esta iniciativa busca incentivar a participação ativa dos estudantes, oferecendo uma plataforma de estímulo e reconhecimento de seu desempenho acadêmico.
