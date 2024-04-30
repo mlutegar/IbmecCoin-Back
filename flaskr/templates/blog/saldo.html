@@ -2,12 +2,12 @@
 
 {% block header %}
   <h1>{% block title %}Aluno{% endblock %}</h1>
-  {% if g.aluno %}
+  {% if g.user %}
   {% endif %}
 {% endblock %}
 
 {% block content %}
     <h1>Saldo</h1>
-    <h2>Saldo atual: {{ g.aluno['saldo'] }}</h2>
+    <h2>Saldo atual: {{ g.user['saldo'] }}</h2>
       <hr>
 {% endblock %}

@@ -36,7 +36,7 @@ def create():
             db.execute(
                 'INSERT INTO post (title, body, author_id)'
                 ' VALUES (?, ?, ?)',
-                (title, body, g.aluno['id'])
+                (title, body, g.user['id'])
             )
             db.commit()
             return redirect(url_for('blog.index'))
@@ -54,7 +54,7 @@ def get_post(id, check_author=True):
     if post is None:
         abort(404, f"Post id {id} doesn't exist.")
 
-    if check_author and post['author_id'] != g.aluno['id']:
+    if check_author and post['author_id'] != g.user['id']:
         abort(403)
 
     return post
@@ -101,6 +101,6 @@ def delete(id):
 def saldo():
     db = get_db()
     saldo = db.execute(
-        'SELECT saldo FROM aluno WHERE id = ?', (g.aluno['id'],)
+        'SELECT saldo FROM aluno WHERE id = ?', (g.user['id'],)
     ).fetchone()
     return render_template('blog/saldo.html', saldo=saldo)

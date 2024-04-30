@@ -4,8 +4,8 @@
 <nav>
   <h1>Ibmec Coin</h1>
   <ul>
-    {% if g.aluno %}
-      <li><span>{{ g.aluno['matricula'] }}</span>
+    {% if g.user %}
+      <li><span>{{ g.user['matricula'] }}</span>
       <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
       <li><a href="{{ url_for('blog.saldo')}}">Ver saldo</a>
     {% else %}

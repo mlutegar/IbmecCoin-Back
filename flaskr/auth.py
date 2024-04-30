@@ -88,6 +88,7 @@ def login_aluno():
         if error is None:
             session.clear()
             session['user_id'] = aluno['id']
+            session['user_cargo'] = "0"
             return redirect(url_for('index'))
 
         flash(error)
@@ -113,6 +114,7 @@ def login_professor():
         if error is None:
             session.clear()
             session['user_id'] = professor['id']
+            session['user_cargo'] = "1"
             return redirect(url_for('index'))
 
         flash(error)
@@ -122,13 +124,20 @@ def login_professor():
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id')
+    user_cargo = session.get('user_cargo')
 
     if user_id is None:
-        g.aluno = None
-    else:
-        g.aluno = get_db().execute(
+        g.user = None
+    elif user_cargo == "0":
+        g.user = get_db().execute(
             'SELECT * FROM aluno WHERE id = ?', (user_id,)
         ).fetchone()
+    elif user_cargo == "1":
+        g.professor = get_db().execute(
+            'SELECT * FROM professor WHERE id = ?', (user_id,)
+        ).fetchone()
+    else:
+        g.user = None
 
 
 @bp.route('/logout')
@@ -140,7 +149,7 @@ def logout():
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if g.aluno is None:
+        if g.user is None:
             return redirect(url_for('auth.login_aluno'))
 
         return view(**kwargs)
