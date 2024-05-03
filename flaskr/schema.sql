@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS post;
+DROP TABLE IF EXISTS tokenQrCode;
 DROP TABLE IF EXISTS aluno;
 DROP TABLE IF EXISTS professor;
 DROP TABLE IF EXISTS turma;
@@ -40,11 +40,7 @@ CREATE TABLE transacao (
     FOREIGN KEY (receptor_id) REFERENCES aluno (id)
 );
 
-CREATE TABLE post (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  author_id INTEGER NOT NULL,
-  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  title TEXT NOT NULL,
-  body TEXT NOT NULL,
-  FOREIGN KEY (author_id) REFERENCES aluno (id)
+CREATE TABLE tokenQrCode (
+    token text primary key,
+    used BOOLEAN NOT NULL DEFAULT 0
 );

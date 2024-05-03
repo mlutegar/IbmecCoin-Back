@@ -52,9 +52,10 @@ def create_app(test_config=None): # test_config=None é um argumento opcional
             "Programming": "Python"
         })
 
-    from . import auth, blog
+    from . import auth, blog, debugger
     app.register_blueprint(auth.bp)
     app.register_blueprint(blog.bp)
+    app.register_blueprint(debugger.bp)
 
     app.add_url_rule('/', endpoint='index')
 

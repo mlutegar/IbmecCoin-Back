@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Log In - Aluno{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<h1>Debugger</h1>
+<p>Alunos cadastrados:</p>
+<ul>
+  {% for aluno in alunos %}
+    <li>{{ aluno.matricula }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}
