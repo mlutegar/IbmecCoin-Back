@@ -5,7 +5,6 @@ import secrets
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
-from werkzeug.security import check_password_hash, generate_password_hash
 
 from flaskr.db import get_db
 from flaskr.dao.token_qr_code_dao import TokenQrCodeDao
@@ -33,13 +32,12 @@ def registro_token():
         if error is None:
             try:
                 tk.insert(token)
-            # except db.IntegrityError:
-            except:
+                redirect(url_for("qrcode.exibir_token", token=token))
+            except db.IntegrityError:
                 error = f"O {token} is already registered."
+                flash(error)
             else:
-                return redirect(url_for("qrcode.exibir-token"))
-        flash(error)
-    return render_template('qrcode/registro-token.html')
+                return redirect(url_for("index"))
 
 
 # exibir token : função que recebe como parâmetro o token, gera o qrcode e exibe na tela
