@@ -1,13 +1,11 @@
 import os
 
 from flask import Flask, jsonify
-from flask_cors import CORS
 import datetime
 
 def create_app(test_config=None): # test_config=None é um argumento opcional
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    CORS(app)
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
@@ -52,10 +50,11 @@ def create_app(test_config=None): # test_config=None é um argumento opcional
             "Programming": "Python"
         })
 
-    from . import auth, blog, debugger
+    from . import auth, qrcode, debugger, blog
     app.register_blueprint(auth.bp)
-    app.register_blueprint(blog.bp)
+    app.register_blueprint(qrcode.bp)
     app.register_blueprint(debugger.bp)
+    app.register_blueprint(blog.bp)
 
     app.add_url_rule('/', endpoint='index')
 

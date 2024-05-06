@@ -24,3 +24,19 @@ class AlunoDao:
         return self.db.execute(
             "SELECT * FROM aluno"
         ).fetchall()
+
+    def update(self, matricula, senha):
+        self.db.execute(
+            "UPDATE aluno SET senha = ? WHERE matricula = ?",
+            (senha, matricula),
+        )
+        self.db.commit()
+
+    def delete(self, matricula):
+        self.db.execute("DELETE FROM aluno WHERE matricula = ?", (matricula,))
+        self.db.commit()
+
+    def get_saldo(self, matricula):
+        return self.db.execute(
+            "SELECT saldo FROM aluno WHERE matricula = ?", (matricula,)
+        ).fetchone()

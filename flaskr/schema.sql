@@ -42,5 +42,5 @@ CREATE TABLE transacao (
 
 CREATE TABLE tokenQrCode (
     token text primary key,
-    used BOOLEAN NOT NULL DEFAULT 0
+    used BOOLEAN NOT NULL DEFAULT 1
 );

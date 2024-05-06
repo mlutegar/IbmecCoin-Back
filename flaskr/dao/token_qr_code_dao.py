@@ -4,11 +4,11 @@ class TokenQrCodeDao:
     def __init__(self):
         self.db = get_db()
 
-    def insert(self, token, qr_code):
+    def insert(self, token):
         try:
             self.db.execute(
-                "INSERT INTO token_qr_code (token, qr_code) VALUES (?, ?)",
-                (token, qr_code),
+                "INSERT INTO token_qr_code (token) VALUES (?)",
+                (token),
             )
             self.db.commit()
         except self.db.IntegrityError:
