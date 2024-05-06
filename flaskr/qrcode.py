@@ -26,11 +26,10 @@ def gerar_qrcode(link):
 @bp.route('/registro_token/', methods=('GET', 'POST'))
 def registro_token():
     tk = TokenQrCodeDao()
-    token = criarToken()
 
     if request.method == 'POST':
         error = None
-
+        token = criarToken()
         if error is None:
             try:
                 tk.insert(token)
@@ -40,7 +39,7 @@ def registro_token():
             else:
                 return redirect(url_for("qrcode.exibir-token"))
         flash(error)
-    return render_template('qrcode/registro-token.html', token=token)
+    return render_template('qrcode/registro-token.html')
 
 
 # exibir token : função que recebe como parâmetro o token, gera o qrcode e exibe na tela
