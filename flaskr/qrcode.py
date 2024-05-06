@@ -1,4 +1,6 @@
 import functools
+import qrcode
+import secrets
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
@@ -11,9 +13,7 @@ from flaskr.dao.token_qr_code_dao import TokenQrCodeDao
 bp = Blueprint('qrcode', __name__, url_prefix='/qrcode')
 
 def criarToken():
-    return "abcdef"
-    # return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
-
+    return secrets.token_urlsafe()
 
 def gerar_qrcode(link):
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
@@ -23,9 +23,10 @@ def gerar_qrcode(link):
     return img
 
 
-@bp.route('/registro_token/<token>', methods=('GET', 'POST'))
-def registro_token(token):
+@bp.route('/registro_token/', methods=('GET', 'POST'))
+def registro_token():
     tk = TokenQrCodeDao()
+    token = criarToken()
 
     if request.method == 'POST':
         error = None
@@ -37,13 +38,13 @@ def registro_token(token):
             except:
                 error = f"O {token} is already registered."
             else:
-                return redirect(url_for("qrcode/exibir-token.html"))
+                return redirect(url_for("qrcode.exibir-token"))
         flash(error)
     return render_template('qrcode/registro-token.html', token=token)
 
 
 # exibir token : função que recebe como parâmetro o token, gera o qrcode e exibe na tela
-@bp.route('/exibir-token', methods=('GET', 'POST'))
+@bp.route('/exibir-token/<token>', methods=('GET', 'POST'))
 def exibir_token(token):
     tk = TokenQrCodeDao()
     img = gerar_qrcode(token)
