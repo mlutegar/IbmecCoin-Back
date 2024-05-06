@@ -32,16 +32,15 @@ def registro_token():
         if error is None:
             try:
                 tk.insert(token)
-                redirect(url_for("qrcode.exibir_token", token=token))
-            except db.IntegrityError:
+                return redirect(url_for("qrcode.exibir_token", token=token))
+            except IntegrityError:
                 error = f"O {token} is already registered."
                 flash(error)
-            else:
                 return redirect(url_for("index"))
 
 
 # exibir token : função que recebe como parâmetro o token, gera o qrcode e exibe na tela
-@bp.route('/exibir-token/<token>', methods=('GET', 'POST'))
+@bp.route('/exibir-token/<token>', methods=('GET'))
 def exibir_token(token):
     tk = TokenQrCodeDao()
     img = gerar_qrcode(token)
