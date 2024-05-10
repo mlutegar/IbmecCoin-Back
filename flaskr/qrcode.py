@@ -1,5 +1,4 @@
 import functools
-import qrcode
 import secrets
 
 from flask import (

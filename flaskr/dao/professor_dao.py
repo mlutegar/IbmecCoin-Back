@@ -4,20 +4,20 @@ class ProfessorDao:
     def __init__(self):
         self.db = get_db()
 
-    def insert(self, matricula, senha):
+    def insert(self, id_user):
         try:
             self.db.execute(
-                "INSERT INTO professor (matricula, senha) VALUES (?, ?)",
-                (matricula, senha),
+                "INSERT INTO professor (id_user) VALUES (?,)",
+                (id_user,),
             )
             self.db.commit()
         except self.db.IntegrityError:
-            return f"User {matricula} is already registered."
+            return f"User {id_user} is already registered."
         return None
 
-    def select(self, matricula):
+    def select(self, id_user):
         return self.db.execute(
-            "SELECT * FROM professor WHERE matricula = ?", (matricula,)
+            "SELECT * FROM professor WHERE id_user = ?", (id_user,)
         ).fetchone()
 
     def select_all(self):

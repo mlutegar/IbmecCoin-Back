@@ -2,41 +2,49 @@ from flaskr.db import get_db
 
 class AlunoDao:
     def __init__(self):
-        self.db = get_db()
+        pass
 
-    def insert(self, matricula, senha):
+    # insert: insere um aluno no banco de dados
+    def insert(self, id_user):
+        db = get_db()
+
         try:
-            self.db.execute(
-                "INSERT INTO aluno (matricula, senha) VALUES (?, ?)",
-                (matricula, senha),
+            db.execute(
+                "INSERT INTO aluno (id_user) VALUES (?)",
+                (id_user,),
             )
-            self.db.commit()
-        except self.db.IntegrityError:
-            return f"User {matricula} is already registered."
+            db.commit()
+        except db.IntegrityError:
+            return f"User {id_user} is already registered."
         return None
 
-    def select(self, matricula):
-        return self.db.execute(
-            "SELECT * FROM aluno WHERE matricula = ?", (matricula,)
+    # select: seleciona um aluno no banco de dados
+    def select(self, id_user):
+        db = get_db()
+        return db.execute(
+            "SELECT * FROM aluno WHERE id_user = ?", (id_user,)
         ).fetchone()
 
+    # select_all: seleciona todos os alunos no banco de dados
     def select_all(self):
-        return self.db.execute(
+        db = get_db()
+        return db.execute(
             "SELECT * FROM aluno"
         ).fetchall()
 
-    def update(self, matricula, senha):
-        self.db.execute(
-            "UPDATE aluno SET senha = ? WHERE matricula = ?",
-            (senha, matricula),
-        )
-        self.db.commit()
+    # delete: deleta um aluno no banco de dados
+    def delete(self, id_user):
+        db = get_db()
+        db.execute("DELETE FROM aluno WHERE id_user = ?", (id_user,))
+        db.commit()
 
-    def delete(self, matricula):
-        self.db.execute("DELETE FROM aluno WHERE matricula = ?", (matricula,))
-        self.db.commit()
-
-    def get_saldo(self, matricula):
-        return self.db.execute(
-            "SELECT saldo FROM aluno WHERE matricula = ?", (matricula,)
+    # get_saldo: retorna o saldo de um aluno no banco de dados
+    def get_saldo(self, id_user):
+        db = get_db()
+        return db.execute(
+            "SELECT saldo FROM aluno WHERE id_user = ?", (id_user,)
         ).fetchone()
+
+    # get_db: retorna o banco de dados
+    def get_db(self):
+        return get_db()

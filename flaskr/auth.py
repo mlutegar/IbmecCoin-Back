@@ -5,121 +5,94 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from flaskr.dao.aluno_dao import AlunoDao
+from flaskr.dao.professor_dao import ProfessorDao
+from flaskr.dao.user_dao import UserDao
 from flaskr.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-@bp.route('/registro_aluno', methods=('GET', 'POST'))
-def registro_aluno():
+# registro_user: rota para registrar um aluno no sistema
+@bp.route('/registro_user', methods=('GET', 'POST'))
+def registro_user():
+    aluno = AlunoDao()
+    professor = ProfessorDao()
+    user = UserDao()
+
+    # Se o método for POST, significa que o formulário foi submetido
     if request.method == 'POST':
-        # Recebe os dados do formulário
         matricula = request.form['matricula']
         senha = request.form['senha']
-        db = get_db()
+        tipo = request.form['tipo']
         error = None
 
+        # Verifica se os campos foram preenchidos
         if not matricula:
             error = 'Matricula is required.'
         elif not senha:
             error = 'Senha is required.'
+        elif not tipo or tipo not in ["aluno", "professor"]:
+            error = 'Tipo is required.'
 
+        # Se não houver erro, tenta inserir o aluno no banco de dados, senão, exibe o erro na tela e não insere
         if error is None:
             try:
-                db.execute(
-                    "INSERT INTO aluno (matricula, senha) VALUES (?, ?)",
-                    (matricula, generate_password_hash(senha)),
-                )
-                db.commit()
-            except db.IntegrityError:
+                if user.insert(matricula, generate_password_hash(senha), tipo) == 1:
+                    id = user.get_id_by_matricula(matricula)
+                    if id == -1:
+                        error = f"Erro na obtenção do id do usuário {matricula}."
+                        return error
+                else:
+                    error = f"Erro ao inserir usuário {matricula}."
+                    return error
+
+                if tipo == "aluno":
+                    aluno.insert(id)
+                elif tipo == "professor":
+                    professor.insert(id)
+            except user.get_db().IntegrityError:
                 error = f"User {matricula} is already registered."
             else:
-                return redirect(url_for("auth.login_aluno"))
-
+                return redirect(url_for("index"))
         flash(error)
 
-    return render_template('auth/registro_aluno.html')
+    return render_template('auth/registro_user.html')
 
-@bp.route('/registro_professor', methods=('GET', 'POST'))
-def registro_professor():
-    if request.method == 'POST':
-        # Recebe os dados do formulário
-        matricula = request.form['matricula']
-        senha = request.form['senha']
-        db = get_db()
-        error = None
+@bp.route('/login_user', methods=('GET', 'POST'))
+def login_user():
+    userDao = UserDao()
 
-        if not matricula:
-            error = 'Matricula is required.'
-        elif not senha:
-            error = 'Senha is required.'
-
-        if error is None:
-            try:
-                db.execute(
-                    "INSERT INTO professor (matricula, senha) VALUES (?, ?)",
-                    (matricula, generate_password_hash(senha)),
-                )
-                db.commit()
-            except db.IntegrityError:
-                error = f"User {matricula} is already registered."
-            else:
-                return redirect(url_for("auth.login_professor"))
-
-        flash(error)
-
-    return render_template('auth/registro_professor.html')
-
-@bp.route('/login_aluno', methods=('GET', 'POST'))
-def login_aluno():
     if request.method == 'POST':
         matricula = request.form['matricula']
         senha = request.form['senha']
         db = get_db()
         error = None
-        aluno = db.execute(
-            'SELECT * FROM aluno WHERE matricula = ?', (matricula,)
+
+        tipo = userDao.get_tipo_by_matricula(matricula)
+
+        if tipo == "aluno":
+            user = db.execute(
+                'SELECT * FROM user u JOIN aluno a ON u.id_user = a.id_user WHERE matricula = ?', (matricula,)
+            ).fetchone()
+
+        user = db.execute(
+            'SELECT * FROM user WHERE matricula = ?', (matricula,)
         ).fetchone()
 
-        if aluno is None:
+        if user is None:
             error = 'Incorrect matricula.'
-        elif not check_password_hash(aluno['senha'], senha):
+        elif not check_password_hash(user['senha'], senha):
             error = 'Senha incorreta.'
 
         if error is None:
             session.clear()
-            session['user_id'] = aluno['id']
-            session['user_cargo'] = "0"
+            session['user_id'] = user['id_user']
             return redirect(url_for('index'))
 
         flash(error)
 
-    return render_template('auth/login_aluno.html')
+    return render_template('auth/login_user.html')
 
-@bp.route('/login_professor', methods=('GET', 'POST'))
-def login_professor():
-    if request.method == 'POST':
-        matricula = request.form['matricula']
-        senha = request.form['senha']
-        db = get_db()
-        error = None
-        professor = db.execute(
-            'SELECT * FROM professor WHERE matricula = ?', (matricula,)
-        ).fetchone()
-
-        if professor is None:
-            error = 'Incorrect matricula.'
-        elif not check_password_hash(professor['senha'], senha):
-            error = 'Incorrect senha.'
-
-        if error is None:
-            session.clear()
-            session['user_id'] = professor['id']
-            session['user_cargo'] = "1"
-            return redirect(url_for('index'))
-
-        flash(error)
-
-    return render_template('auth/login_professor.html')
 
 @bp.before_app_request
 def load_logged_in_user():
@@ -130,11 +103,11 @@ def load_logged_in_user():
         g.user = None
     elif user_cargo == "0":
         g.user = get_db().execute(
-            'SELECT * FROM aluno WHERE id = ?', (user_id,)
+            'SELECT * FROM user WHERE id_user = ?', (user_id,)
         ).fetchone()
     elif user_cargo == "1":
         g.professor = get_db().execute(
-            'SELECT * FROM professor WHERE id = ?', (user_id,)
+            'SELECT * FROM user WHERE id_user = ?', (user_id,)
         ).fetchone()
     else:
         g.user = None

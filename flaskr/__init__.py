@@ -1,8 +1,10 @@
 import os
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 import datetime
 
+# create_app: função que cria a aplicação flask principal
+# parametros: test_config: argumento opcional que permite passar configurações para a aplicação
 def create_app(test_config=None): # test_config=None é um argumento opcional
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -28,12 +30,17 @@ def create_app(test_config=None): # test_config=None é um argumento opcional
     from . import db
     db.init_app(app)
 
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
+    # index: rota principal da aplicação, retorna uma mensagem de boas-vindas
+    @app.route('/')
+    def index():
+        """
+        Rota principal da aplicação, retorna uma mensagem de boas-vindas.
+        """
+        return render_template('/index.html')
 
-    # Route for returning data
+    # get_data: função que retorna dados para exibição em uma aplicação React
+    # parametros: nenhum
+    # retorno: retorna um JSON com os dados
     @app.route('/data')
     def get_data():
         """
@@ -52,7 +59,6 @@ def create_app(test_config=None): # test_config=None é um argumento opcional
 
     from . import auth, qrcode, debugger, blog
     app.register_blueprint(auth.bp)
-    app.register_blueprint(qrcode.bp)
     app.register_blueprint(debugger.bp)
     app.register_blueprint(blog.bp)
 
