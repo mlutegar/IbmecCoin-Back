@@ -1,0 +1,9 @@
+<!--Página que tem um form para o usuário inserir o código do QRCode e ser redirecionado para a página de validação, ou
+para o usuário scannear o QRCode e ser redirecionado para a página de validação-->
+    <h1>Leitor de QRCode</h1>
+    <p>Insira o código do QRCode ou scannear o QRCode</p>
+    <form method="post">
+        <input type="text" name="token" placeholder="Código do QRCode">
+        <button type="submit">Validar</button>
+        {{error}}
+    </form>

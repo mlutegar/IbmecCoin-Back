@@ -9,12 +9,14 @@ from flaskr.dao.aluno_dao import AlunoDao
 from flaskr.dao.professor_dao import ProfessorDao
 from flaskr.dao.user_dao import UserDao
 from flaskr.db import get_db
+from flaskr.util.debugger import debugger
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 # registro_user: rota para registrar um aluno no sistema
 @bp.route('/registro_user', methods=('GET', 'POST'))
 def registro_user():
+    # Instanciando os DAOs
     aluno = AlunoDao()
     professor = ProfessorDao()
     user = UserDao()
@@ -26,6 +28,8 @@ def registro_user():
         tipo = request.form['tipo']
         error = None
 
+        debugger(f"matricula: {matricula}, senha: {senha}, tipo: {tipo}, error: {error}")
+
         # Verifica se os campos foram preenchidos
         if not matricula:
             error = 'Matricula is required.'
@@ -33,6 +37,8 @@ def registro_user():
             error = 'Senha is required.'
         elif not tipo or tipo not in ["aluno", "professor"]:
             error = 'Tipo is required.'
+
+        debugger(f"matricula: {matricula}, senha: {senha}, tipo: {tipo}, error: {error}")
 
         # Se não houver erro, tenta inserir o aluno no banco de dados, senão, exibe o erro na tela e não insere
         if error is None:
@@ -49,7 +55,9 @@ def registro_user():
                 if tipo == "aluno":
                     aluno.insert(id)
                 elif tipo == "professor":
-                    professor.insert(id)
+                    if professor.insert(id) == -1:
+                        error = f"Erro ao inserir professor {matricula}."
+                        return error
             except user.get_db().IntegrityError:
                 error = f"User {matricula} is already registered."
             else:
@@ -58,6 +66,7 @@ def registro_user():
 
     return render_template('auth/registro_user.html')
 
+# login_aluno: rota para logar um aluno no sistema
 @bp.route('/login_user', methods=('GET', 'POST'))
 def login_user():
     userDao = UserDao()
@@ -68,21 +77,29 @@ def login_user():
         db = get_db()
         error = None
 
+        # debug
+        print(f"matricula: {matricula}, senha: {senha}")
+
         tipo = userDao.get_tipo_by_matricula(matricula)
 
-        if tipo == "aluno":
-            user = db.execute(
-                'SELECT * FROM user u JOIN aluno a ON u.id_user = a.id_user WHERE matricula = ?', (matricula,)
-            ).fetchone()
+        # debug
+        print(f"tipo: {tipo}")
 
-        user = db.execute(
-            'SELECT * FROM user WHERE matricula = ?', (matricula,)
-        ).fetchone()
+        if tipo == "aluno":
+            user = userDao.select_aluno_by_matricula(matricula)
+        elif tipo == "professor":
+            user = userDao.select_professor_by_matricula(matricula)
+
+        # debug
+        debugger(f"user: {user}")
 
         if user is None:
             error = 'Incorrect matricula.'
         elif not check_password_hash(user['senha'], senha):
             error = 'Senha incorreta.'
+
+        # debug
+        debugger(f"error: {error}")
 
         if error is None:
             session.clear()
@@ -93,32 +110,29 @@ def login_user():
 
     return render_template('auth/login_user.html')
 
-
+# load_logged_in_user: função que carrega o usuário logado
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id')
-    user_cargo = session.get('user_cargo')
 
     if user_id is None:
         g.user = None
-    elif user_cargo == "0":
-        g.user = get_db().execute(
-            'SELECT * FROM user WHERE id_user = ?', (user_id,)
-        ).fetchone()
-    elif user_cargo == "1":
-        g.professor = get_db().execute(
-            'SELECT * FROM user WHERE id_user = ?', (user_id,)
-        ).fetchone()
     else:
-        g.user = None
+        user = UserDao()
+        if user.get_tipo_by_id(user_id) == "aluno":
+            g.user = user.select_aluno(user_id)
+        elif user.get_tipo_by_id(user_id) == "professor":
+            g.user = user.select_professor(user_id)
+        else:
+            g.user = None
 
-
+# logout: rota para deslogar um usuário
 @bp.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('index'))
 
-
+# login_required: função que verifica se o usuário está logado
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):

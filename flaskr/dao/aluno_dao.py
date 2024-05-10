@@ -25,6 +25,13 @@ class AlunoDao:
             "SELECT * FROM aluno WHERE id_user = ?", (id_user,)
         ).fetchone()
 
+    # select_user: seleciona um aluno no banco de dados dando join com a tabela user
+    def select_user(self, id_user):
+        db = get_db()
+        return db.execute(
+            "SELECT * FROM user u JOIN aluno a ON u.id_user = a.id_user WHERE u.id_user = ?", (id_user,)
+        ).fetchone()
+
     # select_all: seleciona todos os alunos no banco de dados
     def select_all(self):
         db = get_db()

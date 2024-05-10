@@ -36,19 +36,54 @@
             Saldo:
             {{
                 g.user['saldo']
-                if g.user['saldo']
+                if g.user['saldo'] is not none
                 else 'Nenhum'
             }}
             <br>
         </p>
+    <h3>Funções</h3>
+    <a href="{{ url_for('qrcode.leitor') }}">
+        <button>
+            Leitor de qr code
+        </button>
+    </a>
+    <a>
+        <button>
+            Transferir
+        </button>
+    </a>
+    <a>
+        <button>
+            Ver histórico
+        </button>
+    </a>
+    <a>
+        <button>
+           Loja
+        </button>
+    </a>
     {%elif g.user['tipo'] == 'professor':%}
-        <p>
-        </p>
+        <div>
+            <a href="{{ url_for('qrcode.foto', token='new') }}">
+                <button>Gerar qr code</button>
+            </a>
+            <a href="{{ url_for('qrcode.foto', token='last') }}">
+                <button>Vê último qr code gerado</button>
+            </a>
+            <button>Dá moeda para aluno</button>
+        </div>
     {%endif%}
 
+    <hr>
 
-     <a href="{{ url_for('auth.logout') }}">Log Out</a>
-    <a href="{{ url_for('auth.registro_user')}}">Se cadastrar</a>
-    <a href="{{ url_for('auth.login_user')}}">Logar</a>
+     <a href="{{ url_for('auth.logout') }}">
+        <button >Log  Out</button>
+     </a>
+    <a href="{{ url_for('auth.registro_user')}}">
+        <button>Se cadastrar</button>
+    </a>
+    <a href="{{ url_for('auth.login_user')}}">
+        <button>Logar</button>
+    </a>
 </body>
 </html>

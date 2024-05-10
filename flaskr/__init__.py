@@ -61,6 +61,7 @@ def create_app(test_config=None): # test_config=None é um argumento opcional
     app.register_blueprint(auth.bp)
     app.register_blueprint(debugger.bp)
     app.register_blueprint(blog.bp)
+    app.register_blueprint(qrcode.bp)
 
     app.add_url_rule('/', endpoint='index')
 

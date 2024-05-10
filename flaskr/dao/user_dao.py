@@ -75,11 +75,60 @@ class UserDao:
     # get_tipo_by_matricula: retorna o tipo de um usuário a partir da matrícula
     def get_tipo_by_matricula(self, matricula):
         db = get_db()
-        tipo = ""
         try:
-            db.execute(
+            tipo = db.execute(
             "SELECT tipo FROM user WHERE matricula = ?", (matricula,)
             ).fetchone()
         except db.IntegrityError:
             return -1
+
+        return tipo["tipo"]
+
+    # get_tipo_by_id: retorna o tipo de um usuário a partir do id
+    def get_tipo_by_id(self, id):
+        db = get_db()
+        try:
+            tipo = db.execute(
+            "SELECT tipo FROM user WHERE id_user = ?", (id,)
+            ).fetchone()
+        except db.IntegrityError:
+            return -1
+
+        try:
+            tipo = tipo["tipo"]
+        except:
+            return -1
+
         return tipo
+
+    # select_professor: seleciona um professor no banco de dados com join com a tabela user
+    def select_professor(self, id_user):
+        db = get_db()
+
+        return db.execute(
+            "SELECT * FROM user u JOIN professor p ON u.id_user = p.id_user WHERE u.id_user = ?", (id_user,)
+        ).fetchone()
+
+    # select_aluno: seleciona um aluno no banco de dados com join com a tabela user
+    def select_aluno(self, id_user):
+        db = get_db()
+
+        return db.execute(
+            "SELECT * FROM user u JOIN aluno a ON u.id_user = a.id_user WHERE u.id_user = ?", (id_user,)
+        ).fetchone()
+
+    # select_aluno_by_matricula: seleciona um aluno no banco de dados com join com a tabela user
+    def select_aluno_by_matricula(self, matricula):
+        db = get_db()
+
+        return db.execute(
+            "SELECT * FROM user u JOIN aluno a ON u.id_user = a.id_user WHERE u.matricula = ?", (matricula,)
+        ).fetchone()
+
+    # select_professor_by_matricula: seleciona um professor no banco de dados com join com a tabela user
+    def select_professor_by_matricula(self, matricula):
+        db = get_db()
+
+        return db.execute(
+            "SELECT * FROM user u JOIN professor p ON u.id_user = p.id_user WHERE u.matricula = ?", (matricula,)
+        ).fetchone()
