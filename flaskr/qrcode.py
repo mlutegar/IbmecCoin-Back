@@ -1,3 +1,11 @@
+"""
+Módulo que contém as funções relacionadas ao qrcode, como a criação de um token, a geração de um qrcode a partir de um
+token e a validação de um token. Além disso, contém a rota para exibir a foto do qrcode na tela.
+- A rota /foto/<token>: exibe a foto do qrcode na tela a partir de um token. Se o token não for passado, um novo token é gerado.
+- A rota /leitor: exibe a página do leitor de qrcode, permite que o usuário adiciona o token manualmente ou escaneie o qrcode que resgatará o token e verificará se o token é válido e caso for, adicionará saldo na conta do usuário aluno.
+- A rota /validar/<token>: valida um token, adiciona saldo na conta do usuário aluno e desativa o token.
+"""
+
 import functools
 import secrets
 
