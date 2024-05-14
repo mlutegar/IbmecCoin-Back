@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS token_qr_code;
+DROP TABLE IF EXISTS tokenQrCode;
 DROP TABLE IF EXISTS aluno;
 DROP TABLE IF EXISTS professor;
 DROP TABLE IF EXISTS turma;
@@ -52,5 +53,7 @@ CREATE TABLE transacao (
 CREATE TABLE token_qr_code (
     id_token INTEGER PRIMARY KEY AUTOINCREMENT,
     token text NOT NULL,
+    valor INTEGER NOT NULL,
+    validade TIMESTAMP NOT NULL,
     used BOOLEAN NOT NULL DEFAULT 1
 );

@@ -38,6 +38,14 @@ def registro_user():
         elif not tipo or tipo not in ["aluno", "professor"]:
             error = 'Tipo is required.'
 
+        if len(matricula) < 9:
+            flash('Matrícula inválida.')
+            return render_template('auth/registro_user.html')
+
+        if len(senha) < 8:
+            flash('Senha inválida.')
+            return render_template('auth/registro_user.html')
+
         debugger(f"matricula: {matricula}, senha: {senha}, tipo: {tipo}, error: {error}")
 
         # Se não houver erro, tenta inserir o aluno no banco de dados, senão, exibe o erro na tela e não insere
@@ -74,24 +82,35 @@ def login_user():
     if request.method == 'POST':
         matricula = request.form['matricula']
         senha = request.form['senha']
-        db = get_db()
-        error = None
 
-        # debug
-        print(f"matricula: {matricula}, senha: {senha}")
+        if not matricula:
+            flash('Matrícula é obrigatória.')
+            return render_template('auth/login_user.html')
+
+        if not senha:
+            flash('Senha é obrigatória.')
+            return render_template('auth/login_user.html')
+
+        if len(matricula) < 9:
+            flash('Matrícula inválida.')
+            return render_template('auth/login_user.html')
+
+        if len(senha) < 8:
+            flash('Senha inválida.')
+            return render_template('auth/login_user.html')
+
+        error = None
 
         tipo = userDao.get_tipo_by_matricula(matricula)
 
-        # debug
-        print(f"tipo: {tipo}")
+        if tipo == -1:
+            flash("Matrícula inválida.")
+            return render_template('auth/login_user.html')
 
         if tipo == "aluno":
             user = userDao.select_aluno_by_matricula(matricula)
         elif tipo == "professor":
             user = userDao.select_professor_by_matricula(matricula)
-
-        # debug
-        debugger(f"user: {user}")
 
         if user is None:
             error = 'Incorrect matricula.'

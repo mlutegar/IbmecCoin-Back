@@ -82,6 +82,9 @@ class UserDao:
         except db.IntegrityError:
             return -1
 
+        if tipo is None:
+            return -1
+
         return tipo["tipo"]
 
     # get_tipo_by_id: retorna o tipo de um usuário a partir do id
@@ -132,3 +135,15 @@ class UserDao:
         return db.execute(
             "SELECT * FROM user u JOIN professor p ON u.id_user = p.id_user WHERE u.matricula = ?", (matricula,)
         ).fetchone()
+
+    def get_id_by_matricula(self, matricula):
+        db = get_db()
+
+        user = db.execute(
+            "SELECT id_user FROM user WHERE matricula = ?", (matricula,)
+        ).fetchone()
+
+        if user is None:
+            return -1
+
+        return user["id_user"]

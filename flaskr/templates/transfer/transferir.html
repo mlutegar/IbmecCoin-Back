@@ -24,14 +24,28 @@ Essa página possui as seguintes regras:
 </head>
 <body>
     <h1>Transferir IbmecCoins</h1>
-    <p>Saldo atual: <?php echo $_SESSION['saldo']; ?> IbmecCoins</p>
-    <form action="transferir.php" method="post">
+    <p>Saldo atual:
+    {{
+        g.user['saldo']
+        }}
+    </p>
+    <form method="post">
         <label for="usuario">Usuário:</label>
         <input type="text" id="usuario" name="usuario" required>
         <label for="quantidade">Quantidade:</label>
         <input type="number" id="quantidade" name="quantidade" required>
         <button type="submit">Transferir</button>
     </form>
-    <a href="index.php">Voltar</a>
+    <a href="{{ url_for('index') }}">Voltar</a>
 </body>
 </html>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}

@@ -47,7 +47,7 @@
             Leitor de qr code
         </button>
     </a>
-    <a>
+    <a href="{{url_for('transfer.transferir')}}">
         <button>
             Transferir
         </button>
@@ -70,7 +70,12 @@
             <a href="{{ url_for('qrcode.foto', token='last') }}">
                 <button>Vê último qr code gerado</button>
             </a>
-            <button>Dá moeda para aluno</button>
+            <a href="{{ url_for('prof.beneficiar') }}">
+                <button>Beneficiar aluno</button>
+            </a>
+            <a href="{{ url_for('prof.transferencias') }}">
+                <button>Ver transferências</button>
+            </a>
         </div>
     {%endif%}
 
@@ -85,5 +90,16 @@
     <a href="{{ url_for('auth.login_user')}}">
         <button>Logar</button>
     </a>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 </body>
 </html>

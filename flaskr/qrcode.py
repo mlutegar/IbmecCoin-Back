@@ -8,7 +8,9 @@ token e a validação de um token. Além disso, contém a rota para exibir a fot
 
 import functools
 import secrets
+from datetime import datetime, timedelta
 
+from dateutil.utils import today
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
@@ -31,7 +33,7 @@ def foto(token):
         token = recuperarUltimoToken()
 
     if token == "new":
-        token = criarToken()
+        token = criarToken(1, datetime.today() + timedelta(days=1))
 
     img = gerarQrcode(token)
 
@@ -67,7 +69,7 @@ def validar(token):
     tk.ativar(token)
     return render_template('qrcode/validar.html', token=token)
 
-def criarToken():
+def criarToken(valor, validade):
     """
     Função que cria um token para ser utilizado no qrcode
     :return: token gerado pelo método token_urlsafe
@@ -75,7 +77,7 @@ def criarToken():
     tk = TokenQrCodeDao()
     token = secrets.token_urlsafe()
 
-    tk.insert(token)
+    tk.insert(token, valor, validade)
 
     return token
 
