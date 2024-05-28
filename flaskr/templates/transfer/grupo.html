@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Group</title>
+</head>
+<body>
+    <h1>Create Group</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    {% if not grupo %}
+    <form method="POST">
+        <label for="group_name">Group Name</label>
+        <input type="text" name="group_name" id="group_name" required>
+        <br>
+        <label for="members">Number of Members</label>
+        <input type="text" name="members" id="members" required>
+        <br>
+        <input type="submit" value="Create Group">
+    </form>
+    {% else %}
+        <p>You are already part of a team and cannot create a new group.</p>
+    {% endif %}
+
+    <h3>Members</h3>
+    {% if membros %}
+        <ul>
+        {% for member in membros %}
+            <li>{{ member.name }} - {% if member.status == 'pending' %}Pending{% else %}Active{% endif %}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>None</p>
+    {% endif %}
+
+    <a href="{{ url_for('invite_member') }}">
+        <button>Add Member</button>
+    </a>
+
+    <a href="{{ url_for('transfer.transfer') }}">
+        <button>Transfer</button>
+    </a>
+</body>
+</html>

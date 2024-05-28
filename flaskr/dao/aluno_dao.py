@@ -141,3 +141,19 @@ class AlunoDao:
             return [], "Nenhum aluno encontrado."
 
         return alunos, "Alunos encontrados com sucesso."
+
+    def get_group_info(self, matricula):
+        # Retorna as informações do grupo para o usuário com a matrícula fornecida
+        pass
+
+    def get_group_members(self, grupo_id):
+        # Retorna os membros do grupo com o ID fornecido
+        pass
+
+    def invite_to_group(self, remetente, destinatario, grupo_id):
+        # Envia um convite para o destinatário para se juntar ao grupo
+        pass
+
+    def accept_group_invitation(self, usuario_id, grupo_id):
+        # Aceita o convite para o usuário se juntar ao grupo
+        pass

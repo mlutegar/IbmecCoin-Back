@@ -1,9 +1,10 @@
 DROP TABLE IF EXISTS token_qr_code;
-DROP TABLE IF EXISTS tokenQrCode;
 DROP TABLE IF EXISTS aluno;
 DROP TABLE IF EXISTS professor;
 DROP TABLE IF EXISTS turma;
+DROP TABLE IF EXISTS grupo_transferencia;
 DROP TABLE IF EXISTS transacao;
+
 DROP TABLE IF EXISTS user;
 
 CREATE TABLE user(
@@ -18,10 +19,12 @@ CREATE TABLE aluno (
   id_user INTEGER NOT NULL,
   nome TEXT,
   email TEXT,
+    grupo_id INTEGER,
   saldo INTEGER NOT NULL DEFAULT 0,
   turma_id INTEGER,
     FOREIGN KEY (turma_id) REFERENCES turma (id_turma),
-    FOREIGN KEY (id_user) REFERENCES user (id_user)
+    FOREIGN KEY (id_user) REFERENCES user (id_user),
+    FOREIGN KEY (grupo_id) REFERENCES grupo_transferencia (id_grupo)
 );
 
 CREATE TABLE professor (
@@ -56,4 +59,12 @@ CREATE TABLE token_qr_code (
     valor INTEGER NOT NULL,
     validade TIMESTAMP NOT NULL,
     used BOOLEAN NOT NULL DEFAULT 1
+);
+
+CREATE TABLE grupo_transferencia (
+    id_grupo INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    valor_max INTEGER NOT NULL,
+    crador_id INTEGER NOT NULL,
+    FOREIGN KEY (crador_id) REFERENCES aluno (id_user)
 );

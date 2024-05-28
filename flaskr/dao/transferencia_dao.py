@@ -123,3 +123,30 @@ class TransferenciaDao:
             return transacoes, "Transações obtidas com sucesso."
         except Exception as e:
             return [], f"Erro ao obter transações: {str(e)}"
+
+    def criar_grupo(self, nome_grupo, remetente, quantidade):
+        """
+        Função que cria um grupo de transferência de saldo. O grupo pode ser composto por até 10 pessoas. O remetente é o criador do grupo.
+        :param nome_grupo: o nome do grupo
+        :param remetente: o usuário que está criando o grupo
+        :param quantidade: o número de integrantes que o grupo terá
+        :return: Tupla (bool, str) indicando sucesso/falha e mensagem correspondente
+        """
+        try:
+            if not remetente:
+                raise ValueError("Remetente deve ser especificado.")
+            if quantidade <= 0 or quantidade > 10:
+                raise ValueError("O número de integrantes deve ser entre 1 e 10.")
+
+            db = get_db()
+            with db:
+                db.execute(
+                    "INSERT INTO grupo_transferencia (nome, valor_max, crador_id) VALUES (?, ?, ?)",
+                    (nome_grupo, quantidade, remetente['id_user'])
+                )
+
+            db.commit()
+
+            return True, f"Grupo {nome_grupo} criado com sucesso por {remetente['nome']}."
+        except Exception as e:
+            return False, f"Erro ao criar grupo: {str(e)}"

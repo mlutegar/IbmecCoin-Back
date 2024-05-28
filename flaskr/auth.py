@@ -9,7 +9,6 @@ from flaskr.dao.aluno_dao import AlunoDao
 from flaskr.dao.professor_dao import ProfessorDao
 from flaskr.dao.user_dao import UserDao
 from flaskr.db import get_db
-from flaskr.util.debugger import debugger
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -28,8 +27,6 @@ def registro_user():
         tipo = request.form['tipo']
         error = None
 
-        debugger(f"matricula: {matricula}, senha: {senha}, tipo: {tipo}, error: {error}")
-
         # Verifica se os campos foram preenchidos
         if not matricula:
             error = 'Matricula is required.'
@@ -45,8 +42,7 @@ def registro_user():
         if len(senha) < 8:
             flash('Senha inválida.')
             return render_template('auth/registro_user.html')
-
-        debugger(f"matricula: {matricula}, senha: {senha}, tipo: {tipo}, error: {error}")
+            return render_template('auth/registro_user.html')
 
         # Se não houver erro, tenta inserir o aluno no banco de dados, senão, exibe o erro na tela e não insere
         if error is None:
@@ -116,9 +112,6 @@ def login_user():
             error = 'Incorrect matricula.'
         elif not check_password_hash(user['senha'], senha):
             error = 'Senha incorreta.'
-
-        # debug
-        debugger(f"error: {error}")
 
         if error is None:
             session.clear()
