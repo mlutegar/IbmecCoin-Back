@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, g, flash
-from flaskr.dao.aluno_dao import AlunoDao
+from flaskr.dao.entities.aluno_dao import AlunoDao
 from flaskr.dao.transferencia_dao import TransferenciaDao
-from flaskr.dao.user_dao import UserDao
-from flaskr.utils.transfer import validar_campos_transferencia, obter_usuarios_transferencia, processar_transferencia, processar_grupo
+from flaskr.dao.entities.user_dao import UserDao
+from flaskr.utils.transfer import processar_transferencia, processar_grupo
 
 bp = Blueprint('transfer', __name__, url_prefix='/transfer')
 

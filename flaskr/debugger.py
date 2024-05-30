@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint
 
-from flaskr.dao.aluno_dao import AlunoDao
+from flaskr.dao.entities.aluno_dao import AlunoDao
 
 bp = Blueprint('debugger', __name__, url_prefix='/debugger')
 

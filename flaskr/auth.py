@@ -5,9 +5,9 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from flaskr.dao.aluno_dao import AlunoDao
+from flaskr.dao.entities.aluno_dao import AlunoDao
 from flaskr.dao.professor_dao import ProfessorDao
-from flaskr.dao.user_dao import UserDao
+from flaskr.dao.entities.user_dao import UserDao
 from flaskr.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')

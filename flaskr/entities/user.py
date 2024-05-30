@@ -1,33 +1,34 @@
 class User:
-    def __init__(self, id_user, matricula, nome, email, senha, tipo):
-        self.id_user = id_user
+    def __init__(self, matricula, senha, tipo, nome, email):
         self.matricula = matricula
-        self.nome = nome
-        self.email = email
         self.senha = senha
         self.tipo = tipo
+        self.nome = nome
+        self.email = email
 
     def __str__(self):
-        return f"User {self.id_user} {self.matricula} {self.nome} {self.email} {self.senha} {self.tipo}"
+        return f"User {self.matricula} {self.nome} {self.email} {self.senha} {self.tipo}"
 
     def __repr__(self):
-        return f"User {self.id_user} {self.matricula} {self.nome} {self.email} {self.senha} {self.tipo}"
+        return f"User {self.matricula} {self.nome} {self.email} {self.senha} {self.tipo}"
 
     def to_dict(self):
         return {
-            "id_user": self.id_user,
             "matricula": self.matricula,
-            "nome": self.nome,
-            "email": self.email,
             "senha": self.senha,
-            "tipo": self.tipo
+            "tipo": self.tipo,
+            "nome": self.nome,
+            "email": self.email
         }
 
     def to_dict_without_senha(self):
         return {
-            "id_user": self.id_user,
             "matricula": self.matricula,
+            "tipo": self.tipo,
             "nome": self.nome,
-            "email": self.email,
-            "tipo": self.tipo
+            "email": self.email
         }
+
+    def update_senha(self, senha):
+        self.senha = senha
+        return self

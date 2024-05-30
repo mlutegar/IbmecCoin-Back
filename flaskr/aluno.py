@@ -1,29 +1,20 @@
-"""
-Módulo que contém as funções relacionadas as ações de professor.
-- A rota /transferencias: exibe a página de transferências de todas as transferências dos alunos.
-- A rota /transferencias/<id>: exibe a página de transferências de um aluno específico.
-- A rota /beneficiar: exibe a página de beneficiar um aluno.
-- A rota /adicionar-loja: exibe a página de adicionar uma loja.
-"""
-
 from flask import Blueprint, render_template, flash, request
 
 from flaskr.dao.entities.aluno_dao import AlunoDao
 from flaskr.dao.transferencia_dao import TransferenciaDao
 
-bp = Blueprint('prof', __name__, url_prefix='/prof')
+"""
+Módulo que contém as funções relacionadas as ações do aluno.
+- A rota /aluno: exibe as informações do aluno.
+- A rota /aluno/grupo: exibe a página do grupo em que o aluno está.
+- A rota /aluno/aceitar-convite/<idGrupo>: aceita o convite para o aluno se juntar ao grupo.
+"""
 
-def get_all_alunos():
-    """
-    Função que retorna todos os alunos do banco de dados.
-    :return: retorna todos os alunos do banco de dados
-    """
-    alunoDao = AlunoDao()
-    alunos, mensagem = alunoDao.get_all_user_alunos()
-    return alunos, mensagem
+bp = Blueprint('aluno', __name__, url_prefix='/aluno')
 
-@bp.route('/beneficiar', methods=('GET', 'POST'))
-def beneficiar():
+
+@bp.route('/aluno', methods=('GET', 'POST'))
+def aluno():
     """
     Função que exibe a página de beneficiar um aluno.
     Essa função também é responsável por processar o post do formulário de beneficiar um aluno.
@@ -56,7 +47,7 @@ def beneficiar():
     alunos, mensagem = get_all_alunos()
     flash(mensagem)
 
-    return render_template('prof/beneficiar.html', alunos=alunos)
+    return render_template('aluno.html', alunos=alunos)
 
 @bp.route('/transferencias', methods=('GET', 'POST'))
 def transferencias():
@@ -73,3 +64,12 @@ def transferencias():
 
     flash(mensagem)
     return render_template('prof/transferencias.html', transferencias=transferencias)
+
+def invite_to_group(self, remetente, destinatario, grupo_id):
+    # Envia um convite para o destinatário para se juntar ao grupo
+    pass
+
+
+def accept_group_invitation(self, usuario_id, grupo_id):
+    # Aceita o convite para o usuário se juntar ao grupo
+    pass

@@ -4,7 +4,7 @@ from flask import (
 from werkzeug.exceptions import abort
 
 from flaskr.auth import login_required
-from flaskr.dao.aluno_dao import AlunoDao
+from flaskr.dao.entities.aluno_dao import AlunoDao
 
 bp = Blueprint('blog', __name__)
 

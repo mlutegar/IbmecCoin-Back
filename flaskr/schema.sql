@@ -7,8 +7,7 @@ DROP TABLE IF EXISTS transacao;
 DROP TABLE IF EXISTS user;
 
 CREATE TABLE user (
-    id_user INTEGER PRIMARY KEY AUTOINCREMENT,
-    matricula TEXT UNIQUE NOT NULL,
+    matricula INTEGER PRIMARY KEY NOT NULL,
     senha TEXT NOT NULL,
     tipo TEXT CHECK(tipo IN ('aluno', 'professor')) NOT NULL,
     nome TEXT,
@@ -16,22 +15,21 @@ CREATE TABLE user (
 );
 
 CREATE TABLE aluno (
-    id_aluno INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_user INTEGER NOT NULL,
+    matricula INTEGER NOT NULL,
     grupo_id INTEGER,
     saldo INTEGER NOT NULL DEFAULT 0,
     turma_id INTEGER,
-    FOREIGN KEY (id_user) REFERENCES user (id_user),
+    FOREIGN KEY (matricula) REFERENCES user (matricula),
     FOREIGN KEY (turma_id) REFERENCES turma (id_turma),
-    FOREIGN KEY (grupo_id) REFERENCES grupo_transferencia (id_grupo)
+    FOREIGN KEY (grupo_id) REFERENCES grupo (id_grupo)
 );
 
 CREATE TABLE professor (
-    id_professor INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_user INTEGER NOT NULL,
+    matricula INTEGER NOT NULL,
     turma_id INTEGER,
-    FOREIGN KEY (id_user) REFERENCES user (id_user)
+    FOREIGN KEY (matricula) REFERENCES user (matricula)
 );
+
 
 CREATE TABLE turma (
   id_turma INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,10 +56,10 @@ CREATE TABLE token_qr_code (
     used BOOLEAN NOT NULL DEFAULT 1
 );
 
-CREATE TABLE grupo_transferencia (
+CREATE TABLE grupo (
     id_grupo INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
     valor_max INTEGER NOT NULL,
-    crador_id INTEGER NOT NULL,
-    FOREIGN KEY (crador_id) REFERENCES aluno (id_user)
+    criador_matricula INTEGER NOT NULL,
+    FOREIGN KEY (criador_matricula) REFERENCES aluno (matricula)
 );
