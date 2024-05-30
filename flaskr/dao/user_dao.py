@@ -3,13 +3,27 @@ from flaskr.db import get_db
 
 
 class UserDao:
-    def __init__(self):
-        pass
+    """
+    Classe responsável por realizar operações no banco de dados relacionadas a entidade User
 
-    # insert: insere um usuário no banco de dados
-    def insert(self, matricula, senha, tipo):
+    Métodos:
+    - insert_user(matricula, senha, tipo): Insere um usuário no banco de dados
+    - get_user_by_matricula(matricula): Seleciona um usuário no banco de dados
+    - get_user_by_id(id_user): Seleciona um usuário no banco de dados
+    - get_all_user(): Seleciona todos os usuários no banco de dados
+    - update_user(matricula, senha): Atualiza a senha de um usuário no banco de dados
+    - delete_user(matricula): Deleta um usuário do banco de dados
+    """
+    @staticmethod
+    def insert_user(matricula, senha, tipo):
+        """
+        Insere um usuário no banco de dados
+        :param matricula: matrícula do usuário
+        :param senha: senha do usuário
+        :param tipo: tipo do usuário
+        :return: True se o usuário foi inserido com sucesso, False caso contrário
+        """
         db = get_db()
-
         try:
             db.execute(
                 "INSERT INTO user (matricula, senha, tipo) VALUES (?, ?, ?)",
@@ -17,133 +31,81 @@ class UserDao:
             )
             db.commit()
         except db.IntegrityError:
-            return -1
-        return 1
+            return False
+        return True
 
-    # select: seleciona um usuário no banco de dados
-    def select(self, matricula):
+    @staticmethod
+    def get_user_by_matricula(matricula: str):
+        """
+        Seleciona um usuário no banco de dados.
+        :param matricula: matrícula do usuário
+        :return: Dicionário contendo os dados do usuário, ou None se o usuário não for encontrado
+        """
         db = get_db()
-        return db.execute(
-            "SELECT * FROM user WHERE matricula = ?", (matricula,)
-        ).fetchone()
+        query = "SELECT * FROM user WHERE matricula = ?"
+        result = db.execute(query, (matricula,)).fetchone()
+        if result:
+            return dict(result)
+        return None
 
-    # select_all: seleciona todos os usuários no banco de dados
-    def select_all(self):
+    @staticmethod
+    def get_user_by_id(id_user: int):
+        """
+        Seleciona um usuário no banco de dados.
+        :param id_user: id do usuário
+        :return: Dicionário contendo os dados do usuário, ou None se o usuário não for encontrado
+        """
         db = get_db()
-        return db.execute(
+        query = "SELECT * FROM user WHERE id = ?"
+        result = db.execute(query, (id_user,)).fetchone()
+        if result:
+            return dict(result)
+        return None
+
+    @staticmethod
+    def get_all_user():
+        """
+        Seleciona todos os usuários no banco de dados
+        :return: Lista de dicionários contendo os dados dos usuários, ou None se não houver usuários
+        """
+        db = get_db()
+        result = db.execute(
             "SELECT * FROM user"
         ).fetchall()
+        if result:
+            return result
+        return None
 
-    # update: atualiza a senha de um usuário no banco de dados
-    def update(self, matricula, senha):
-        db = get_db()
-        db.execute(
-            "UPDATE user SET senha = ? WHERE matricula = ?",
-            (senha, matricula),
-        )
-        db.commit()
-
-    # delete: deleta um usuário no banco de dados
-    def delete(self, matricula):
-        db = get_db()
-        db.execute("DELETE FROM user WHERE matricula = ?", (matricula,))
-        db.commit()
-
-    # get_saldo: retorna o saldo de um usuário no banco de dados
-    def get_saldo(self, matricula):
-        db = get_db()
-        return db.execute(
-            "SELECT saldo FROM user WHERE matricula = ?", (matricula,)
-        ).fetchone()
-
-    # get_db: retorna o banco de dados
-    def get_db(self):
-        return get_db()
-
-    # get_id_by_matricula: retorna o id de um usuário a partir da matrícula
-    def get_id_by_matricula(self, matricula):
+    @staticmethod
+    def update_user(matricula, senha):
+        """
+        Atualiza a senha de um usuário no banco de dados
+        :param matricula: matrícula do usuário
+        :param senha: nova senha do usuário
+        :return: True se a senha foi atualizada com sucesso, False caso contrário
+        """
         db = get_db()
         try:
-            id = db.execute(
-            "SELECT id_user FROM user WHERE matricula = ?", (matricula,)
-            ).fetchone()
-            id = id["id_user"]
+            db.execute(
+                "UPDATE user SET senha = ? WHERE matricula = ?",
+                (senha, matricula),
+            )
+            db.commit()
         except db.IntegrityError:
-            return -1
-        return id
+            return False
+        return True
 
-    # get_tipo_by_matricula: retorna o tipo de um usuário a partir da matrícula
-    def get_tipo_by_matricula(self, matricula):
+    @staticmethod
+    def delete_user(matricula):
+        """
+        Deleta um usuário do banco de dados
+        :param matricula: matrícula do usuário
+        :return: True se o usuário foi deletado com sucesso, False caso contrário
+        """
         db = get_db()
         try:
-            tipo = db.execute(
-            "SELECT tipo FROM user WHERE matricula = ?", (matricula,)
-            ).fetchone()
+            db.execute("DELETE FROM user WHERE matricula = ?", (matricula,))
+            db.commit()
         except db.IntegrityError:
-            return -1
-
-        if tipo is None:
-            return -1
-
-        return tipo["tipo"]
-
-    # get_tipo_by_id: retorna o tipo de um usuário a partir do id
-    def get_tipo_by_id(self, id):
-        db = get_db()
-        try:
-            tipo = db.execute(
-            "SELECT tipo FROM user WHERE id_user = ?", (id,)
-            ).fetchone()
-        except db.IntegrityError:
-            return -1
-
-        try:
-            tipo = tipo["tipo"]
-        except:
-            return -1
-
-        return tipo
-
-    # select_professor: seleciona um professor no banco de dados com join com a tabela user
-    def select_professor(self, id_user):
-        db = get_db()
-
-        return db.execute(
-            "SELECT * FROM user u JOIN professor p ON u.id_user = p.id_user WHERE u.id_user = ?", (id_user,)
-        ).fetchone()
-
-    # select_aluno: seleciona um aluno no banco de dados com join com a tabela user
-    def select_aluno(self, id_user):
-        db = get_db()
-
-        return db.execute(
-            "SELECT * FROM user u JOIN aluno a ON u.id_user = a.id_user WHERE u.id_user = ?", (id_user,)
-        ).fetchone()
-
-    # select_aluno_by_matricula: seleciona um aluno no banco de dados com join com a tabela user
-    def select_aluno_by_matricula(self, matricula):
-        db = get_db()
-
-        return db.execute(
-            "SELECT * FROM user u JOIN aluno a ON u.id_user = a.id_user WHERE u.matricula = ?", (matricula,)
-        ).fetchone()
-
-    # select_professor_by_matricula: seleciona um professor no banco de dados com join com a tabela user
-    def select_professor_by_matricula(self, matricula):
-        db = get_db()
-
-        return db.execute(
-            "SELECT * FROM user u JOIN professor p ON u.id_user = p.id_user WHERE u.matricula = ?", (matricula,)
-        ).fetchone()
-
-    def get_id_by_matricula(self, matricula):
-        db = get_db()
-
-        user = db.execute(
-            "SELECT id_user FROM user WHERE matricula = ?", (matricula,)
-        ).fetchone()
-
-        if user is None:
-            return -1
-
-        return user["id_user"]
+            return False
+        return True

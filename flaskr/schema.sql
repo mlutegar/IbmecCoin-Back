@@ -4,35 +4,32 @@ DROP TABLE IF EXISTS professor;
 DROP TABLE IF EXISTS turma;
 DROP TABLE IF EXISTS grupo_transferencia;
 DROP TABLE IF EXISTS transacao;
-
 DROP TABLE IF EXISTS user;
 
-CREATE TABLE user(
+CREATE TABLE user (
     id_user INTEGER PRIMARY KEY AUTOINCREMENT,
     matricula TEXT UNIQUE NOT NULL,
     senha TEXT NOT NULL,
-    tipo TEXT NOT NULL
+    tipo TEXT CHECK(tipo IN ('aluno', 'professor')) NOT NULL,
+    nome TEXT,
+    email TEXT
 );
 
 CREATE TABLE aluno (
-  id_aluno INTEGER PRIMARY KEY AUTOINCREMENT,
-  id_user INTEGER NOT NULL,
-  nome TEXT,
-  email TEXT,
+    id_aluno INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_user INTEGER NOT NULL,
     grupo_id INTEGER,
-  saldo INTEGER NOT NULL DEFAULT 0,
-  turma_id INTEGER,
-    FOREIGN KEY (turma_id) REFERENCES turma (id_turma),
+    saldo INTEGER NOT NULL DEFAULT 0,
+    turma_id INTEGER,
     FOREIGN KEY (id_user) REFERENCES user (id_user),
+    FOREIGN KEY (turma_id) REFERENCES turma (id_turma),
     FOREIGN KEY (grupo_id) REFERENCES grupo_transferencia (id_grupo)
 );
 
 CREATE TABLE professor (
-  id_professor INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_professor INTEGER PRIMARY KEY AUTOINCREMENT,
     id_user INTEGER NOT NULL,
-  nome TEXT,
-  email TEXT,
-  turma_id INTEGER,
+    turma_id INTEGER,
     FOREIGN KEY (id_user) REFERENCES user (id_user)
 );
 

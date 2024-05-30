@@ -1,9 +1,11 @@
 from flaskr.dao.user_dao import UserDao
 from flaskr.db import get_db
 
+
 class AlunoDao:
     def __init__(self):
         pass
+
 
     # insert: insere um aluno no banco de dados
     def insert(self, id_user):
@@ -81,7 +83,7 @@ class AlunoDao:
         db = get_db()
 
         userDao = UserDao()
-        id = userDao.get_id_by_matricula(matricula)
+        id = get_id_by_matricula(matricula)
 
         saldo = db.execute(
             "SELECT saldo FROM aluno WHERE id_user = ?", (id,)
@@ -102,7 +104,7 @@ class AlunoDao:
         db = get_db()
 
         userDao = UserDao()
-        id = userDao.get_id_by_matricula(matricula)
+        id = get_id_by_matricula(matricula)
 
         saldo = db.execute(
             "SELECT saldo FROM aluno WHERE id_user = ?", (id,)
@@ -157,3 +159,9 @@ class AlunoDao:
     def accept_group_invitation(self, usuario_id, grupo_id):
         # Aceita o convite para o usuário se juntar ao grupo
         pass
+
+    def get_saldo(matricula):
+        db = get_db()
+        return db.execute(
+            "SELECT saldo FROM user WHERE matricula = ?", (matricula,)
+        ).fetchone()

@@ -1,23 +1,28 @@
-# transferencia_dao.py
-"""
-Módulo responsável por realizar a transferência de saldo entre contas.
-"""
 from flaskr.dao.aluno_dao import AlunoDao
-from flaskr.dao.user_dao import UserDao
 from flaskr.db import get_db
 
 
 class TransferenciaDao:
+    """
+    Classe que representa um DAO (Data Access Object) para operações de transferência de saldo entre contas.
+
+    Métodos:
+        - transferir(quantidade, remetente, destinatario): Função que transfere saldo de uma conta para outra.
+        - _registrar_transferencia(quantidade, remetente, destinatario): Função interna para registrar a transferência no sistema de log ou banco de dados.
+        - creditar(quantidade, usuario): Função que credita saldo em uma conta.
+        - debitar(quantidade, usuario): Função que debita saldo de uma conta.
+        - get_all_transacoes(): Função que retorna todas as transações registradas no sistema.
+        - criar_grupo(nome_grupo, remetente, quantidade): Função que cria um grupo de transferência de saldo.
+    """
+
     def transferir(self, quantidade, remetente, destinatario):
         """
         Função que transfere saldo de uma conta para outra.
-
         :param quantidade: Quantidade de saldo a ser transferida
         :param remetente: Dicionário representando o usuário remetente
         :param destinatario: Dicionário representando o usuário destinatário
         :return: Tupla (bool, str) indicando sucesso/falha e mensagem correspondente
         """
-
         # Validações iniciais para garantir dados válidos
         try:
             if not remetente or not destinatario:

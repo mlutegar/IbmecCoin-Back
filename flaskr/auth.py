@@ -42,13 +42,12 @@ def registro_user():
         if len(senha) < 8:
             flash('Senha inválida.')
             return render_template('auth/registro_user.html')
-            return render_template('auth/registro_user.html')
 
         # Se não houver erro, tenta inserir o aluno no banco de dados, senão, exibe o erro na tela e não insere
         if error is None:
             try:
-                if user.insert(matricula, generate_password_hash(senha), tipo) == 1:
-                    id = user.get_id_by_matricula(matricula)
+                if insert(matricula, generate_password_hash(senha), tipo) == 1:
+                    id = get_id_by_matricula(matricula)
                     if id == -1:
                         error = f"Erro na obtenção do id do usuário {matricula}."
                         return error
@@ -62,9 +61,10 @@ def registro_user():
                     if professor.insert(id) == -1:
                         error = f"Erro ao inserir professor {matricula}."
                         return error
-            except user.get_db().IntegrityError:
+            except get_db().IntegrityError:
                 error = f"User {matricula} is already registered."
             else:
+                logar(user.select_by_id(id))
                 return redirect(url_for("index"))
         flash(error)
 
@@ -97,16 +97,16 @@ def login_user():
 
         error = None
 
-        tipo = userDao.get_tipo_by_matricula(matricula)
+        tipo = get_tipo_by_matricula(matricula)
 
         if tipo == -1:
             flash("Matrícula inválida.")
             return render_template('auth/login_user.html')
 
         if tipo == "aluno":
-            user = userDao.select_aluno_by_matricula(matricula)
+            user = select_aluno_by_matricula(matricula)
         elif tipo == "professor":
-            user = userDao.select_professor_by_matricula(matricula)
+            user = select_professor_by_matricula(matricula)
 
         if user is None:
             error = 'Incorrect matricula.'
@@ -114,13 +114,18 @@ def login_user():
             error = 'Senha incorreta.'
 
         if error is None:
-            session.clear()
-            session['user_id'] = user['id_user']
+            logar(user)
             return redirect(url_for('index'))
 
         flash(error)
 
     return render_template('auth/login_user.html')
+
+
+def logar(user):
+    session.clear()
+    session['user_id'] = user['id_user']
+
 
 # load_logged_in_user: função que carrega o usuário logado
 @bp.before_app_request
@@ -131,10 +136,10 @@ def load_logged_in_user():
         g.user = None
     else:
         user = UserDao()
-        if user.get_tipo_by_id(user_id) == "aluno":
-            g.user = user.select_aluno(user_id)
-        elif user.get_tipo_by_id(user_id) == "professor":
-            g.user = user.select_professor(user_id)
+        if get_tipo_by_id(user_id) == "aluno":
+            g.user = select_aluno(user_id)
+        elif get_tipo_by_id(user_id) == "professor":
+            g.user = select_professor(user_id)
         else:
             g.user = None
 
