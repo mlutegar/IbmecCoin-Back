@@ -16,7 +16,7 @@ from flask import (
 )
 
 from flaskr.db import get_db
-from flaskr.dao.token_qr_code_dao import TokenQrCodeDao
+from flaskr.dao.qr_code_dao import QrCodeDAO
 
 bp = Blueprint('qrcode', __name__, url_prefix='/qrcode')
 
@@ -49,8 +49,8 @@ def leitor():
     """
     if request.method == 'POST':
         token = request.form['token']
-        tk = TokenQrCodeDao()
-        if tk.select(token) is not None:
+        tk = QrCodeDAO()
+        if tk.get_qrcode(token) is not None:
             return redirect(url_for("qrcode.validar", token=token))
         else:
             flash("Token inválido")
@@ -65,7 +65,7 @@ def validar(token):
     :param token: token a ser utilizado no qrcode
     :return: renderiza a página de sucesso
     """
-    tk = TokenQrCodeDao()
+    tk = QrCodeDAO()
     tk.ativar(token)
     return render_template('qrcode/validar.html', token=token)
 
@@ -74,10 +74,10 @@ def criarToken(valor, validade):
     Função que cria um token para ser utilizado no qrcode
     :return: token gerado pelo método token_urlsafe
     """
-    tk = TokenQrCodeDao()
+    tk = QrCodeDAO()
     token = secrets.token_urlsafe()
 
-    tk.insert(token, valor, validade)
+    tk.insert_qrcode(token, valor, validade)
 
     return token
 
@@ -86,8 +86,8 @@ def recuperarUltimoToken():
     Função que recupera o último token gerado
     :return: o último token gerado
     """
-    tk = TokenQrCodeDao()
-    return tk.select_last()
+    tk = QrCodeDAO()
+    return tk.get_lastqrcode()
 
 def gerarQrcode(token):
     """

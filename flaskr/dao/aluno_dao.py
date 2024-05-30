@@ -1,4 +1,4 @@
-from flaskr.dao.entities.user_dao import UserDao
+from flaskr.dao.user_dao import UserDao
 from flaskr.db import get_db
 from flaskr.entities.aluno import Aluno
 
@@ -32,7 +32,7 @@ class AlunoDao(UserDao):
         return True
 
     @staticmethod
-    def select_aluno_by_matricula(matricula):
+    def get_aluno_by_matricula(matricula):
         """
         Seleciona um aluno no banco de dados.
         :param matricula: matrícula do aluno
@@ -58,7 +58,7 @@ class AlunoDao(UserDao):
         return None
 
     @staticmethod
-    def select_all():
+    def get_all():
         """
         Seleciona todos os alunos no banco de dados.
         :return: Lista de objetos do tipo Aluno, ou None se não houver alunos
@@ -66,6 +66,36 @@ class AlunoDao(UserDao):
         db = get_db()
         resultado = db.execute(
             "SELECT * FROM aluno"
+        ).fetchall()
+
+        if not resultado:
+            return None
+
+        alunos = []
+        for row in resultado:
+            aluno = Aluno(
+                row['matricula'],
+                row['senha'],
+                row['tipo'],
+                row['nome'],
+                row['email'],
+                row['grupo_id'],
+                row['saldo'],
+                row['turma_id']
+            )
+            alunos.append(aluno)
+
+        return alunos
+
+    @staticmethod
+    def get_all_aluno_by_grupo_id(grupo_id):
+        """
+        Seleciona todos os alunos no banco de dados de um grupo específico.
+        :return: Lista de objetos do tipo Aluno, ou None se não houver alunos
+        """
+        db = get_db()
+        resultado = db.execute(
+            "SELECT * FROM aluno WHERE grupo_id = ?", (grupo_id,)
         ).fetchall()
 
         if not resultado:

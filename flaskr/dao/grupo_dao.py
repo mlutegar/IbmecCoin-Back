@@ -1,9 +1,26 @@
 from flaskr.db import get_db
+from flaskr.entities.grupo import Grupo
 
 
 class GrupoDAO:
+    """
+    Classe responsável por realizar operações no banco de dados relacionadas a entidade Grupo
+
+    Métodos:
+    - insert_grupo(nome, valor_max, criador_matricula): Insere um grupo no banco de dados
+    - get_grupo_by_id(id_grupo): Seleciona um grupo no banco de dados
+    - get_all_grupo(): Seleciona todos os grupos no banco de dados
+    - update_grupo(id_grupo, **kwargs): Atualiza os campos de um grupo no banco de dados
+    """
     @staticmethod
     def insert_grupo(nome, valor_max, criador_matricula):
+        """
+        Insere um grupo no banco de dados
+        :param nome: nome do grupo
+        :param valor_max: valor máximo de saldo que um aluno pode ter no grupo
+        :param criador_matricula: matrícula do criador do grupo
+        :return: True se o grupo foi inserido com sucesso, False caso contrário
+        """
         db = get_db()
         try:
             db.execute(
@@ -15,150 +32,53 @@ class GrupoDAO:
             return False
         return True
 
-
-"""
-CREATE TABLE grupo (
-    id_grupo INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT NOT NULL,
-    valor_max INTEGER NOT NULL,
-    criador_matricula INTEGER NOT NULL,
-    FOREIGN KEY (criador_matricula) REFERENCES aluno (matricula)
-);
-
-CREATE TABLE aluno (
-    matricula INTEGER NOT NULL,
-    grupo_id INTEGER,
-    saldo INTEGER NOT NULL DEFAULT 0,
-    turma_id INTEGER,
-    FOREIGN KEY (matricula) REFERENCES user (matricula),
-    FOREIGN KEY (turma_id) REFERENCES turma (id_turma),
-    FOREIGN KEY (grupo_id) REFERENCES grupo (id_grupo)
-);
-"""
-
-
-"""
-# UserDao: classe responsável por realizar operações no banco de dados relacionadas a entidade User
-from flaskr.db import get_db
-from flaskr.entities.user import User
-
-class UserDao:
-    """
-    Classe responsável por realizar operações no banco de dados relacionadas a entidade User
-
-    Métodos:
-    - insert_user(matricula, senha, tipo): Insere um usuário no banco de dados
-    - get_user_by_matricula(matricula): Seleciona um usuário no banco de dados
-    - get_user_by_id(id_user): Seleciona um usuário no banco de dados
-    - get_all_user(): Seleciona todos os usuários no banco de dados
-    - update_user(matricula, senha): Atualiza a senha de um usuário no banco de dados
-    - delete_user(matricula): Deleta um usuário do banco de dados
-    """
-
     @staticmethod
-    def insert_user(matricula, senha, tipo, email):
+    def get_grupo_by_id(id_grupo):
         """
-        Insere um usuário no banco de dados
-        :param matricula: matrícula do usuário
-        :param senha: senha do usuário
-        :param tipo: tipo do usuário
-        :param email: email do usuário
-        :return: True se o usuário foi inserido com sucesso, False caso contrário
-        """
-
-        db = get_db()
-        try:
-            db.execute(
-                "INSERT INTO user (matricula, senha, tipo, email) VALUES (?, ?, ?, ?)",
-                (matricula, senha, tipo, email),
-            )
-            db.commit()
-        except db.IntegrityError:
-            return False
-        return True
-
-    @staticmethod
-    def get_user_by_matricula(matricula: str):
-        """
-        Seleciona um usuário no banco de dados.
-        :param matricula: Matrícula do usuário
-        :return: Objeto do tipo User, ou None se o usuário não for encontrado
+        Seleciona um grupo no banco de dados.
+        :param id_grupo: Id do grupo
+        :return: Objeto do tipo Grupo, ou None se o grupo não for encontrado
         """
         db = get_db()
-        query = "SELECT * FROM user WHERE matricula = ?"
-        result = db.execute(query, (matricula,)).fetchone()
+        query = "SELECT * FROM grupo WHERE id_grupo = ?"
+        result = db.execute(query, (id_grupo,)).fetchone()
         if result:
-            user = User(result['matricula'], result['senha'], result['tipo'], result['id'], result['email'])
-            return user
+            grupo = Grupo(result['id_grupo'], result['nome'], result['valor_max'], result['criador_matricula'])
+            return grupo
         return None
 
     @staticmethod
-    def get_user_by_id(id_user: int):
+    def get_all_grupo():
         """
-        Seleciona um usuário no banco de dados.
-        :param id_user: id do usuário
-        :return: Objeto do tipo User, ou None se o usuário não for encontrado
-        """
-        db = get_db()
-        query = "SELECT * FROM user WHERE id = ?"
-        result = db.execute(query, (id_user,)).fetchone()
-        if result:
-            user = User(result['matricula'], result['senha'], result['tipo'], result['id'], result['email'])
-            return user
-        return None
-
-    @staticmethod
-    def get_all_user():
-        """
-        Seleciona todos os usuários no banco de dados
-        :return: Lista de objetos do tipo User, ou None se não houver usuários
+        Seleciona todos os grupos no banco de dados
+        :return: Lista de objetos do tipo Grupo, ou None se não houver grupos
         """
         db = get_db()
         result = db.execute(
-            "SELECT * FROM user"
+            "SELECT * FROM grupo"
         ).fetchall()
         if result:
             lista = []
-            for user in result:
-                lista.append(User(user['matricula'], user['senha'], user['tipo'], user['id'], user['email']))
+            for grupo in result:
+                lista.append(Grupo(grupo['id_grupo'], grupo['nome'], grupo['valor_max'], grupo['criador_matricula']))
             return lista
         return None
 
     @staticmethod
-    def update_user(matricula, **kwargs):
+    def update_grupo(id_grupo, **kwargs):
         """
-        Atualiza os campos de um usuário no banco de dados com base nos argumentos fornecidos.
-        :param matricula: Matrícula do usuário
+        Atualiza os campos de um grupo no banco de dados com base nos argumentos fornecidos.
+        :param id_grupo: Id do grupo
         :param kwargs: Dicionário de campos a serem atualizados
-        :return: True se o usuário foi atualizado com sucesso, False caso contrário
+        :return: True se o grupo foi atualizado com sucesso, False caso contrário
         """
         db = get_db()
-
         set_clause = ", ".join(f"{key} = ?" for key in kwargs)
-        values = list(kwargs.values()) + [matricula]
-
-        query = f"UPDATE user SET {set_clause} WHERE matricula = ?"
-
+        values = list(kwargs.values()) + [id_grupo]
+        query = f"UPDATE grupo SET {set_clause} WHERE id_grupo = ?"
         try:
             db.execute(query, values)
             db.commit()
         except db.IntegrityError:
             return False
-
         return True
-
-    @staticmethod
-    def delete_user(matricula):
-        """
-        Deleta um usuário do banco de dados
-        :param matricula: matrícula do usuário
-        :return: True se o usuário foi deletado com sucesso, False caso contrário
-        """
-        db = get_db()
-        try:
-            db.execute("DELETE FROM user WHERE matricula = ?", (matricula,))
-            db.commit()
-        except db.IntegrityError:
-            return False
-        return True
-"""

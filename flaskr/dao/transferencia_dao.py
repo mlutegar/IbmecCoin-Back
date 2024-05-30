@@ -1,4 +1,4 @@
-from flaskr.dao.entities.aluno_dao import AlunoDao
+from flaskr.dao.aluno_dao import AlunoDao
 from flaskr.db import get_db
 
 

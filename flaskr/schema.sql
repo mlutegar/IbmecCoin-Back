@@ -1,8 +1,8 @@
-DROP TABLE IF EXISTS token_qr_code;
+DROP TABLE IF EXISTS qrcode;
 DROP TABLE IF EXISTS aluno;
 DROP TABLE IF EXISTS professor;
 DROP TABLE IF EXISTS turma;
-DROP TABLE IF EXISTS grupo_transferencia;
+DROP TABLE IF EXISTS grupo;
 DROP TABLE IF EXISTS transacao;
 DROP TABLE IF EXISTS user;
 
@@ -48,12 +48,12 @@ CREATE TABLE transacao (
     FOREIGN KEY (receptor_id) REFERENCES aluno (id_aluno)
 );
 
-CREATE TABLE token_qr_code (
+CREATE TABLE qrcode (
     id_token INTEGER PRIMARY KEY AUTOINCREMENT,
     token text NOT NULL,
     valor INTEGER NOT NULL,
-    validade TIMESTAMP NOT NULL,
-    used BOOLEAN NOT NULL DEFAULT 1
+    validade_data TIMESTAMP NOT NULL,
+    validade BOOLEAN NOT NULL DEFAULT 1
 );
 
 CREATE TABLE grupo (

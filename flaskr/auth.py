@@ -5,9 +5,9 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from flaskr.dao.entities.aluno_dao import AlunoDao
+from flaskr.dao.aluno_dao import AlunoDao
 from flaskr.dao.professor_dao import ProfessorDao
-from flaskr.dao.entities.user_dao import UserDao
+from flaskr.dao.user_dao import UserDao
 from flaskr.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -58,7 +58,7 @@ def registro_user():
                 if tipo == "aluno":
                     aluno.insert(id)
                 elif tipo == "professor":
-                    if professor.insert(id) == -1:
+                    if professor.insert_professor(id) == -1:
                         error = f"Erro ao inserir professor {matricula}."
                         return error
             except get_db().IntegrityError:

@@ -8,7 +8,7 @@ Módulo que contém as funções relacionadas as ações de professor.
 
 from flask import Blueprint, render_template, flash, request
 
-from flaskr.dao.entities.aluno_dao import AlunoDao
+from flaskr.dao.aluno_dao import AlunoDao
 from flaskr.dao.transferencia_dao import TransferenciaDao
 
 bp = Blueprint('prof', __name__, url_prefix='/prof')
@@ -44,7 +44,7 @@ def beneficiar():
         elif not quantidade.isnumeric():
             flash("Quantidade inválida")
 
-        aluno = alunoDao.select_aluno_by_matricula(matricula)
+        aluno = alunoDao.get_aluno_by_matricula(matricula)
 
         if aluno == -1:
             flash("Usuário não encontrado")

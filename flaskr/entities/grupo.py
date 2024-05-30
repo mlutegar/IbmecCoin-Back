@@ -1,3 +1,6 @@
+from flaskr.dao.aluno_dao import AlunoDao
+
+
 class Grupo:
     """
     Classe que representa um grupo de estudo
@@ -20,7 +23,7 @@ class Grupo:
         self.nome = nome
         self.descricao = descricao
         self.criador_id = criador_id
-        self.membros = []
+        self.membros = AlunoDao().get_all_aluno_by_grupo_id(id_grupo)
 
     def add_member(self, aluno):
         """

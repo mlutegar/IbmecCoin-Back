@@ -4,7 +4,7 @@ from flask import (
 from werkzeug.exceptions import abort
 
 from flaskr.auth import login_required
-from flaskr.dao.entities.aluno_dao import AlunoDao
+from flaskr.dao.aluno_dao import AlunoDao
 
 bp = Blueprint('blog', __name__)
 
@@ -12,7 +12,7 @@ ad = AlunoDao()
 
 @bp.route('/')
 def index():
-    posts = ad.select_all()
+    posts = ad.get_all()
     return render_template('blog/index.html', posts=posts)
 
 @bp.route('/create', methods=('GET', 'POST'))

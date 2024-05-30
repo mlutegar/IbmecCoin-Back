@@ -1,6 +1,6 @@
 from flask import render_template, Blueprint
 
-from flaskr.dao.entities.aluno_dao import AlunoDao
+from flaskr.dao.aluno_dao import AlunoDao
 
 bp = Blueprint('debugger', __name__, url_prefix='/debugger')
 
@@ -8,5 +8,5 @@ bp = Blueprint('debugger', __name__, url_prefix='/debugger')
 def debugger():
     aluno_dao = AlunoDao()
 
-    alunos = aluno_dao.select_all()
+    alunos = aluno_dao.get_all()
     return render_template('/debugger.html', alunos=alunos)
