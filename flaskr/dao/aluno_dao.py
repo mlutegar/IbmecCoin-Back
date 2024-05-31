@@ -62,7 +62,7 @@ class AlunoDAO(UserDAO):
                 user.email,
                 resultado['grupo_id'],
                 resultado['saldo'],
-                resultado['turma_id']
+                resultado['id_turma']
             )
             return aluno
         return None
@@ -91,13 +91,13 @@ class AlunoDAO(UserDAO):
                 user.email,
                 row['grupo_id'],
                 row['saldo'],
-                row['turma_id']
+                row['id_turma']
             )
             alunos.append(aluno)
 
         return alunos
 
-    def get_all_aluno_by_grupo_id(self, grupo_id):
+    def get_all_aluno_by_id_grupo(self, grupo_id):
         """
         Seleciona todos os alunos no banco de dados de um grupo específico.
         :return: Lista de objetos do tipo Aluno, ou None se não houver alunos
@@ -121,20 +121,20 @@ class AlunoDAO(UserDAO):
                 user.email,
                 row['grupo_id'],
                 row['saldo'],
-                row['turma_id']
+                row['id_turma']
             )
             alunos.append(aluno)
 
         return alunos
 
-    def get_all_alunos_by_turma_id(self, turma_id):
+    def get_all_alunos_by_id_turma(self, id_turma):
         """
         Seleciona todos os alunos no banco de dados de uma turma específica.
         :return: Lista de objetos do tipo Aluno, ou None se não houver alunos
         """
         db = get_db()
         resultado = db.execute(
-            "SELECT * FROM aluno WHERE turma_id = ?", (turma_id,)
+            "SELECT * FROM aluno WHERE id_turma = ?", (id_turma,)
         ).fetchall()
 
         if not resultado:
@@ -151,7 +151,7 @@ class AlunoDAO(UserDAO):
                 user.email,
                 row['grupo_id'],
                 row['saldo'],
-                row['turma_id']
+                row['id_turma']
             )
             alunos.append(aluno)
 
@@ -212,18 +212,18 @@ class AlunoDAO(UserDAO):
             return False
         return True
 
-    def update_aluno_turma(self, matricula, turma_id):
+    def update_aluno_turma(self, matricula, id_turma):
         """
         Atualiza a turma de um aluno no banco de dados.
         :param matricula: Matrícula do aluno
-        :param turma_id: ID da turma
+        :param id_turma: ID da turma
         :return: True se a turma foi atualizada com sucesso, False caso contrário
         """
         db = get_db()
         try:
             db.execute(
-                "UPDATE aluno SET turma_id = ? WHERE matricula = ?",
-                (turma_id, matricula)
+                "UPDATE aluno SET id_turma = ? WHERE matricula = ?",
+                (id_turma, matricula)
             )
             db.commit()
         except db.IntegrityError:

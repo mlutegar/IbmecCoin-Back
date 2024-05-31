@@ -2,12 +2,12 @@ from datetime import datetime
 
 
 class QrCode:
-    def __init__(self, id_token, token, valor, validade_data):
+    def __init__(self, id_token, token, valor, validade_data, qtd_usos, validade=True):
         self.id_token = id_token
         self.token = token
         self.valor = valor
         self.validade_data = validade_data
-        self.validade = True
+        self.qtd_usos = qtd_usos
 
         self.verifica_validade()
 

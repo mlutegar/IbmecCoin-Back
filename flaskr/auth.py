@@ -36,13 +36,13 @@ def registro():
         elif not tipo or tipo not in ["aluno", "professor"]:
             error = 'Tipo is required.'
 
-        if len(matricula) < 9:
-            flash('Matrícula inválida.')
-            return render_template('auth/registro.html')
-
-        if len(senha) < 8:
-            flash('Senha inválida.')
-            return render_template('auth/registro.html')
+        # if len(matricula) < 9:
+        #     flash('Matrícula inválida.')
+        #     return render_template('auth/registro.html')
+        #
+        # if len(senha) < 8:
+        #     flash('Senha inválida.')
+        #     return render_template('auth/registro.html')
 
         if tipo == "aluno":
             dao = AlunoDAO()
@@ -128,6 +128,12 @@ def load_logged_in_user():
     else:
         dao = UserDAO()
         user = dao.get_user(matricula)
+
+        if user is None:
+            g.user = None
+            session.clear()
+            return
+
         if user.tipo == "aluno":
             dao = AlunoDAO()
             g.user = dao.get_aluno(matricula)

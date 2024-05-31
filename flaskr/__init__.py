@@ -51,10 +51,12 @@ def create_app(test_config=None):
 
         return render_template('index.html')
 
-    from . import aluno, auth, grupo, professor, qrcode, turma
+    from . import aluno, auth, error, grupo, loja, professor, qrcode, turma
     app.register_blueprint(aluno.bp)
     app.register_blueprint(auth.bp)
+    app.register_blueprint(error.bp)
     app.register_blueprint(grupo.bp)
+    app.register_blueprint(loja.bp)
     app.register_blueprint(professor.bp)
     app.register_blueprint(qrcode.bp)
     app.register_blueprint(turma.bp)

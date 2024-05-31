@@ -6,7 +6,7 @@ class Grupo:
     Classe que representa um grupo de estudo
     """
 
-    def __init__(self, id_grupo, nome, descricao, matricula, membros=None):
+    def __init__(self, id_grupo, nome, descricao, matricula, membros: list = None):
         """
         Construtor da classe Grupo
 
@@ -20,9 +20,7 @@ class Grupo:
         self.nome = nome
         self.descricao = descricao
         self.criador_id = matricula
-        self.membros = AlunoDAO().get_all_aluno_by_grupo_id(id_grupo)
-        if membros is None:
-            self.add_member(AlunoDAO().get_aluno(matricula))
+        self.membros = membros
 
 
     def add_member(self, aluno):

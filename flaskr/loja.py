@@ -25,7 +25,7 @@ def loja():
         flash('Erro ao carregar a página da loja')
         return render_template('/')
 
-    return render_template('loja/itens.html', itens=lista_itens, aluno=aluno)
+    return render_template('loja/loja.html', itens=lista_itens, aluno=aluno)
 
 @bp.route('/item/<id_item>', methods=('GET', 'POST'))
 def item(id_item):

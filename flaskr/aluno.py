@@ -14,13 +14,19 @@ def aluno():
     Função que exibe a página de um aluno.
     :return: Renderiza a página de beneficiar um aluno
     """
+    if 'matricula' not in session:
+        flash("Usuário não encontrado")
+        return render_template('error.html')
+
     matricula = session['matricula']
     if matricula is None:
         flash("Usuário não encontrado")
-        return render_template('/')
+        return render_template('error.html')
 
-    alunoDao = AlunoDAO()
-    aluno_obj = alunoDao.get_aluno(matricula)
+    aluno_obj = AlunoDAO().get_aluno(matricula)
+    if aluno_obj is None:
+        flash("Aluno não encontrado")
+        return render_template('error.html')
 
     return render_template('aluno.html', aluno=aluno_obj)
 

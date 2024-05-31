@@ -10,13 +10,13 @@
 
 <h1>GRUPO</h1>
 <h2>INFORMAÇÃO</h2>
-<p>Nome: {{ grupo.name }}</p>
+<p>Nome: {{ grupo.nome }}</p>
 <p>Descrição: {{ grupo.descricao }}</p>
 <h2>MEMBROS</h2>
 {% if grupo.membros %}
     <ul>
     {% for member in grupo.membros %}
-        <li>{{ member.name }} | <a href="{{url_for('transfer.transferir', matricula=member.matricula)}}">Transferir</a></li>
+        <li>{{ member.nome }} | <a href="{{url_for('grupo.transferir', matricula=member.matricula)}}">Transferir</a></li>
     {% endfor %}
     </ul>
 {% else %}

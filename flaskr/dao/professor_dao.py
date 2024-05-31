@@ -59,8 +59,8 @@ class ProfessorDAO(UserDAO):
                 user.nome,
                 user.email,
             )
-            if resultado['turma_id']:
-                professor.set_turma_id(resultado['turma_id'])
+            if resultado['id_turma']:
+                professor.set_id_turma(resultado['id_turma'])
             return professor
         return None
 
@@ -88,8 +88,8 @@ class ProfessorDAO(UserDAO):
                 user.nome,
                 user.email,
             )
-            if row['turma_id']:
-                professor.set_turma_id(row['turma_id'])
+            if row['id_turma']:
+                professor.set_id_turma(row['id_turma'])
             professores.append(professor)
 
         return professores

@@ -14,12 +14,12 @@
 <p>Matrícula: {{ professor.matricula }}</p>
 <p>Nome: {{ professor.nome }}</p>
 <p>Email: {{ professor.email }}</p>
-<p>Turma: {{ professor.turma_id }}</p>
+<p>Turma: {{ professor.id_turma }}</p>
 <a href="">Editar informações</a>
 
 <h2>TURMA</h2>
-<a href="{{ url_for('turma.informacao', turma_id = professor.turma_id) }}">Ver turma</a>
-<a>Criar turma</a>
+<a href="{{ url_for('turma.informacao', id_turma = professor.id_turma) }}">Ver turma</a>
+<a href="{{ url_for('turma.criar') }}">Criar turma</a>
 
 <h2>QRCODE</h2>
 <a href="{{ url_for('qrcode.foto', token='new') }}">Gerar qr code</a>

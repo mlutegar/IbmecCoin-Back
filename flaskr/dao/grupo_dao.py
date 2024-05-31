@@ -1,3 +1,4 @@
+from flaskr.dao.aluno_dao import AlunoDAO
 from flaskr.utils.db import get_db
 from flaskr.entities.grupo import Grupo
 
@@ -44,7 +45,14 @@ class GrupoDAO:
         query = "SELECT * FROM grupo WHERE id_grupo = ?"
         result = db.execute(query, (id_grupo,)).fetchone()
         if result:
-            grupo = Grupo(result['id_grupo'], result['nome'], result['descricao'], result['criador_matricula'])
+            alunos = AlunoDAO().get_all_aluno_by_id_grupo(id_grupo)
+            grupo = Grupo(
+                result['id_grupo'],
+                result['nome'],
+                result['descricao'],
+                result['criador_matricula'],
+                alunos
+            )
             return grupo
         return None
 
@@ -59,7 +67,14 @@ class GrupoDAO:
         query = "SELECT * FROM grupo WHERE criador_matricula = ?"
         result = db.execute(query, (matricula,)).fetchone()
         if result:
-            grupo = Grupo(result['id_grupo'], result['nome'], result['descricao'], result['criador_matricula'])
+            alunos = AlunoDAO().get_all_aluno_by_id_grupo(result['id_grupo'])
+            grupo = Grupo(
+                result['id_grupo'],
+                result['nome'],
+                result['descricao'],
+                result['criador_matricula'],
+                alunos
+            )
             return grupo
         return None
 
@@ -76,7 +91,15 @@ class GrupoDAO:
         if result:
             lista = []
             for grupo in result:
-                lista.append(Grupo(grupo['id_grupo'], grupo['nome'], grupo['valor_max'], grupo['criador_matricula']))
+                alunos = AlunoDAO().get_all_aluno_by_id_grupo(grupo['id_grupo'])
+                grupo = Grupo(
+                    grupo['id_grupo'],
+                    grupo['nome'],
+                    grupo['descricao'],
+                    grupo['criador_matricula'],
+                    alunos
+                )
+                lista.append(grupo)
             return lista
         return None
 

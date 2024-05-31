@@ -1,6 +1,12 @@
+from flaskr.entities.professor import Professor
+
+
 class Turma:
-    def __init__(self, turma_id: int, nome: str, professor_id: int, alunos: list):
-        self.id_turma = turma_id
+    def __init__(self, id_turma: int, nome: str, professor: Professor, alunos: list):
+        self.id_turma = id_turma
         self.nome = nome
-        self.professor = professor_id
+        self.professor = professor
         self.turma = alunos
+
+    def get_quantidade_turma(self):
+        return len(self.turma)

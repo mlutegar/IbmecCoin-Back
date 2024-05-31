@@ -1,7 +1,9 @@
 import secrets
 import segno
 from datetime import datetime, timedelta
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for, session
+
+from flaskr.dao.aluno_dao import AlunoDAO
 from flaskr.dao.qrcode_dao import QrCodeDAO
 
 bp = Blueprint('qrcode', __name__, url_prefix='/qrcode')
@@ -52,12 +54,20 @@ def validar(token):
     :param token: Token a ser utilizado no qrcode
     :return: Renderiza a página de sucesso
     """
-    tk = QrCodeDAO()
-    tk.get_qrcode(token)
-    return render_template('qrcode/validar.html', token=token)
+    if 'matricula' not in session:
+        return redirect(url_for('auth.login'))
+
+    aluno = AlunoDAO().get_aluno(session['matricula'])
+    tk = QrCodeDAO().get_qrcode(token)
+
+    if tk is not None:
+        if tk.validade_data > datetime.now():
+            AlunoDAO().update_aumentar_saldo(aluno.matricula, tk.valor)
+
+    return render_template('qrcode/validar.html', token=tk)
 
 
-def criar_token(valor, validade):
+def criar_token(valor, validade, qtd_usos=1):
     """
     Função que cria um token para ser utilizado no qrcode
     :return: token gerado pelo método token_urlsafe
@@ -65,7 +75,7 @@ def criar_token(valor, validade):
     tk = QrCodeDAO()
     token = secrets.token_urlsafe()
 
-    if tk.insert_qrcode(token, valor, validade):
+    if tk.insert_qrcode(token, valor, validade, qtd_usos):
         return token
 
     return None

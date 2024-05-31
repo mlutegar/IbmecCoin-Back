@@ -14,20 +14,25 @@ class QrCodeDAO:
     - update_qrcode: atualiza um token
     """
 
-    @staticmethod
-    def insert_qrcode(token, valor, validade):
+    def __init__(self):
+        self.lista_qrcode = self.__inicializa_qrcode()
+
+    def insert_qrcode(self, token: str, valor: int, validade_data, qtd_usos):
         """
         Função que insere um novo token
         :param token: token a ser inserido
         :param valor: valor do token
-        :param validade: validade do token
+        :param validade_data: validade do token
+        :param qtd_usos: quantidade de usos do token
         :return: True se o token foi inserido com sucesso, False caso contrário
         """
+        qrcode = QrCode(self.__get_last_id_lista_qrcode() + 1, token, valor, qtd_usos, validade_data)
+
         db = get_db()
         try:
             db.execute(
-                "INSERT INTO qrcode (token, valor, validade) VALUES (?, ?, ?)",
-                (token, valor, validade,)
+                "INSERT INTO qrcode (token, valor, validade_data, qtd_usos, validade) VALUES (?, ?, ?, ?, ?)",
+                (qrcode.token, qrcode.valor, qrcode.validade_data, qrcode.qtd_usos, qrcode.validade)
             )
             db.commit()
         except db.IntegrityError:
@@ -45,9 +50,19 @@ class QrCodeDAO:
         resultado = db.execute(
             "SELECT * FROM qrcode WHERE token = ?", (token,)
         ).fetchone()
-        token = QrCode(resultado['id_token'], resultado['token'], resultado['valor'], resultado['validade'])
-        return token
 
+        if not resultado:
+            return None
+
+        token = QrCode(
+            resultado['id_token'],
+            resultado['token'],
+            resultado['valor'],
+            resultado['validade_data'],
+            resultado['qtd_usos'],
+        )
+
+        return token
 
     @staticmethod
     def get_last_qrcode():
@@ -79,17 +94,20 @@ class QrCodeDAO:
         if not resultado:
             return None
 
-        qr_codes = []
+        qrcodes = []
 
         for qr_code in resultado:
-            qr_codes.append({
-                'id_token': qr_code['id_token'],
-                'token': qr_code['token'],
-                'valor': qr_code['valor'],
-                'validade': qr_code['validade']
-            })
+            qrcode = QrCode(
+                qr_code['id_token'],
+                qr_code['token'],
+                qr_code['valor'],
+                qr_code['validade_data'],
+                qr_code['qtd_usos'],
+                qr_code['validade']
+            )
+            qrcodes.append(qrcode)
 
-        return qr_codes
+        return qrcodes
 
     @staticmethod
     def update_qrcode(id_token, **kwargs):
@@ -110,3 +128,33 @@ class QrCodeDAO:
         except db.IntegrityError:
             return False
         return True
+
+    def __inicializa_qrcode(self):
+        db = get_db()
+
+        resultado = db.execute(
+            "SELECT * FROM qrcode"
+        ).fetchall()
+
+        if not resultado:
+            return None
+
+        qr_codes = []
+
+        for qr_code in resultado:
+            qrcode = QrCode(
+                qr_code['id_token'],
+                qr_code['token'],
+                qr_code['valor'],
+                qr_code['validade_data'],
+                qr_code['qtd_usos'],
+                qr_code['validade']
+            )
+            qr_codes.append(qrcode)
+
+        return qr_codes
+
+    def __get_last_id_lista_qrcode(self):
+        if self.lista_qrcode:
+            return self.lista_qrcode[-1].id_token
+        return 0

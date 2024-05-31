@@ -1,15 +1,24 @@
 <h1>TURMA</h1>
 <h2>INFORMAÇÕES</h2>
 <p>Materia: {{turma.nome}}</p>
-<p>Qtd. Alunos: {{turma.qtdAlunos}}</p>
-<p>Professor: {{turma.professor}}</p>
+<p>Qtd. Alunos: {{turma.get_quantidade_turma()}}</p>
+<p>Professor: {{turma.professor.nome}}</p>
 
 <h2>ALUNOS</h2>
-<ul>
-    {% for aluno in turma.alunos %}
-        <li>{{aluno.nome}}</li>
+<table>
+    <tr>
+        <th>Matricula</th>
+        <th>Nome</th>
+        <th>Saldo</th>
+    </tr>
+    {% for aluno in turma.turma %}
+        <tr>
+            <td>{{aluno.matricula}}</td>
+            <td>{{aluno.nome}}</td>
+            <td>{{aluno.saldo}}</td>
+        </tr>
     {% endfor %}
-</ul>
+</table>
 
 {% if user.tipo == "professor" %}
     <h2>ADICIONAR ALUNO</h2>
@@ -21,4 +30,4 @@
     </form>
 {% endif %}
 
-<a href="{{url_for('/')}}">Voltar</a>
+<a href="{{url_for('index')}}">Voltar</a>

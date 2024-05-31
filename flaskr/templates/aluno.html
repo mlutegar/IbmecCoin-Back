@@ -11,18 +11,22 @@
 <h1>PÁGINA DO ALUNO</h1>
 
 <h2>INFORMAÇÕES</h2>
-Usuario logado: {{aluno.nome}} <br>
-Matricula: {{aluno.matricula}} <br>
-Saldo: {{aluno.saldo}} <br>
-Turma: {{aluno.turma}} <br>
-Tipo: {{aluno.tipo}} <br>
-Grupo: {{aluno.grupo}}
+Usuario logado: {{ aluno.nome }} <br>
+Matricula: {{ aluno.matricula }} <br>
+Saldo: {{ aluno.saldo }} <br>
+Turma: {{ aluno.id_turma }} <br>
+Tipo: {{ aluno.tipo }} <br>
+Grupo: {{ aluno.grupo_id }}
 
 <h2>TURMA</h2>
-<a href="{{ url_for('turma.informacao') }}">Ver turma</a>
+{% if not aluno.id_turma %}
+    <a href="{{ url_for('turma.entrar') }}">Entrar em turma</a>
+{% else %}
+    <a href="{{ url_for('turma.informacao', id_turma=aluno.id_turma) }}">Ver turma</a>
+{% endif %}
 
 <h2>GRUPO</h2>
-{% if aluno.grupo_id == "" %}
+{% if not aluno.grupo_id %}
     <a href="{{ url_for('grupo.criar') }}">Criar grupo</a>
     <a href="{{ url_for('grupo.convites') }}">Ver convites</a>
 {% else %}
@@ -32,10 +36,8 @@ Grupo: {{aluno.grupo}}
 <h2>QRCODE</h2>
 <a href="{{ url_for('qrcode.leitor') }}">Leitor de qrcode</a>
 
-
-
 <h2>LOJA</h2>
-<a href="{{ url_for('loja.itens') }}">Ver loja</a>
+<a href="{{ url_for('loja.loja') }}">Ver loja</a>
 
 <h2>HISTÓRICO</h2>
 <a href="{{ url_for('aluno.historico') }}">Ver histórico</a>
