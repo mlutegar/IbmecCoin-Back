@@ -18,9 +18,13 @@ Turma: {{aluno.turma}} <br>
 Tipo: {{aluno.tipo}} <br>
 Grupo: {{aluno.grupo}}
 
+<h2>TURMA</h2>
+<a href="{{ url_for('turma.informacao') }}">Ver turma</a>
+
 <h2>GRUPO</h2>
 {% if aluno.grupo_id == "" %}
     <a href="{{ url_for('grupo.criar') }}">Criar grupo</a>
+    <a href="{{ url_for('grupo.convites') }}">Ver convites</a>
 {% else %}
     <a href="{{ url_for('grupo.informacao') }}">Ver grupo</a>
 {% endif %}
@@ -28,8 +32,7 @@ Grupo: {{aluno.grupo}}
 <h2>QRCODE</h2>
 <a href="{{ url_for('qrcode.leitor') }}">Leitor de qrcode</a>
 
-<h2>TURMA</h2>
-<a href="{{ url_for('turma.informacao') }}">Ver turma</a>
+
 
 <h2>LOJA</h2>
 <a href="{{ url_for('loja.itens') }}">Ver loja</a>

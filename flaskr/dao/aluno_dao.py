@@ -127,6 +127,36 @@ class AlunoDAO(UserDAO):
 
         return alunos
 
+    def get_all_alunos_by_turma_id(self, turma_id):
+        """
+        Seleciona todos os alunos no banco de dados de uma turma específica.
+        :return: Lista de objetos do tipo Aluno, ou None se não houver alunos
+        """
+        db = get_db()
+        resultado = db.execute(
+            "SELECT * FROM aluno WHERE turma_id = ?", (turma_id,)
+        ).fetchall()
+
+        if not resultado:
+            return None
+
+        alunos = []
+        for row in resultado:
+            user = super().get_user(row['matricula'])
+
+            aluno = Aluno(
+                user.matricula,
+                user.senha,
+                user.nome,
+                user.email,
+                row['grupo_id'],
+                row['saldo'],
+                row['turma_id']
+            )
+            alunos.append(aluno)
+
+        return alunos
+
     def update_aluno(self, matricula, **kwargs):
         """
         Atualiza os campos de um usuário no banco de dados com base nos argumentos fornecidos.
@@ -176,6 +206,24 @@ class AlunoDAO(UserDAO):
             db.execute(
                 "UPDATE aluno SET saldo = saldo - ? WHERE matricula = ?",
                 (valor, matricula)
+            )
+            db.commit()
+        except db.IntegrityError:
+            return False
+        return True
+
+    def update_aluno_turma(self, matricula, turma_id):
+        """
+        Atualiza a turma de um aluno no banco de dados.
+        :param matricula: Matrícula do aluno
+        :param turma_id: ID da turma
+        :return: True se a turma foi atualizada com sucesso, False caso contrário
+        """
+        db = get_db()
+        try:
+            db.execute(
+                "UPDATE aluno SET turma_id = ? WHERE matricula = ?",
+                (turma_id, matricula)
             )
             db.commit()
         except db.IntegrityError:

@@ -11,4 +11,14 @@
     {% endfor %}
 </ul>
 
+{% if user.tipo == "professor" %}
+    <h2>ADICIONAR ALUNO</h2>
+    <form>
+        <label for="matricula"> Matricula
+            <input type="text" name="matricula" placeholder="matricula">
+        </label>
+        <button type="submit">Adicionar</button>
+    </form>
+{% endif %}
+
 <a href="{{url_for('/')}}">Voltar</a>

@@ -121,3 +121,43 @@ def convidar():
         return render_template('grupo/informacao.html')
 
     return render_template('grupo/convidar.html')
+
+
+@bp.route('/convites', methods=('GET', 'POST'))
+def convites():
+    """
+    Função que exibe a página de convites recebidos.
+    """
+    matricula = session['matricula']
+    if matricula is None:
+        return render_template('index.html')
+
+    user = AlunoDAO().get_user(session['matricula'])
+    grupo = GrupoDAO().get_grupo_by_id(user.get_grupo_id())
+    convites_lista = ConviteDAO().get_all_convites_by_matricula(user.matricula)
+
+    return render_template('grupo/convites.html', convites=convites_lista, aluno=aluno, grupo=grupo)
+
+@bp.route('/aceitar/<id_convite>', methods=('GET', 'POST'))
+def aceitar(id_convite):
+    """
+    Função que aceita um convite de um grupo.
+    """
+    matricula = session['matricula']
+    if matricula is None:
+        return render_template('index.html')
+
+    user = AlunoDAO().get_user(matricula)
+    convite = ConviteDAO().get_convite(id_convite)
+
+    if convite is None:
+        flash('Convite não encontrado')
+        return render_template('grupo/convites.html')
+
+    grupo = GrupoDAO().get_grupo_by_id(convite.get_grupo_id())
+    user.set_grupo_id(grupo.id_grupo)
+    AlunoDAO().update_aluno(user)
+
+    ConviteDAO().aceitar_convite(id_convite)
+
+    return render_template('grupo/informacao.html', grupo=grupo, aluno=user)

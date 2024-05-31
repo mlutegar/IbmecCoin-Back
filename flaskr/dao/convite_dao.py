@@ -26,15 +26,15 @@ class ConviteDAO:
         return True
 
     @staticmethod
-    def get_convite(matricula):
+    def get_convite(id_convite):
         """
         Busca um convite no banco de dados.
         :param matricula: A matrícula do usuário convidado.
         :return: Retorna um objeto do tipo Convite se o convite foi encontrado, None caso contrário.
         """
         db = get_db()
-        query = "SELECT * FROM convite WHERE convidado_matricula = ?"
-        result = db.execute(query, (matricula,)).fetchone()
+        query = "SELECT * FROM convite WHERE id_convite = ?"
+        result = db.execute(query, (id_convite,)).fetchone()
         if result:
             convite = Convite(result['id_convite'], result['grupo_id'], result['convidado_matricula'])
             return convite
@@ -58,6 +58,41 @@ class ConviteDAO:
         return None
 
     @staticmethod
+    def get_all_convites_by_grupo_id(grupo_id):
+        """
+        Busca todos os convites de um grupo no banco de dados.
+        :param grupo_id: O id do grupo.
+        :return: Retorna uma lista de objetos do tipo Convite se os convites foram encontrados, None caso contrário.
+        """
+        db = get_db()
+        query = "SELECT * FROM convite WHERE grupo_id = ?"
+        result = db.execute(query, (grupo_id,)).fetchall()
+        if result:
+            lista = []
+            for convite in result:
+                lista.append(Convite(convite['id_convite'], convite['grupo_id'], convite['convidado_matricula']))
+            return lista
+        return None
+
+    @staticmethod
+    def get_all_convites_by_matricula(matricula):
+        """
+        Busca todos os convites de um usuário no banco de dados.
+        :param matricula: A matrícula do usuário.
+        :return: Retorna uma lista de objetos do tipo Convite se os convites foram encontrados, None caso contrário.
+        """
+        db = get_db()
+        query = "SELECT * FROM convite WHERE convidado_matricula = ?"
+        result = db.execute(query, (matricula,)).fetchall()
+        if result:
+            lista = []
+            for convite in result:
+                lista.append(Convite(convite['id_convite'], convite['grupo_id'], convite['convidado_matricula']))
+            return lista
+        return None
+
+
+    @staticmethod
     def delete_convite(id_convite):
         """
         Deleta um convite no banco de dados.
@@ -75,19 +110,22 @@ class ConviteDAO:
             return False
         return True
 
-    @staticmethod
-    def get_convite_by_grupo_id(grupo_id):
+    def aceitar_convite(self, id_convite):
         """
-        Busca todos os convites de um grupo no banco de dados.
-        :param grupo_id: O id do grupo.
-        :return: Retorna uma lista de objetos do tipo Convite se os convites foram encontrados, None caso contrário.
+        Aceita um convite no banco de dados.
+        :param id_convite: O id do convite a ser aceito.
+        :return: Retorna True se o convite foi aceito com sucesso, False caso contrário.
         """
         db = get_db()
-        query = "SELECT * FROM convite WHERE grupo_id = ?"
-        result = db.execute(query, (grupo_id,)).fetchall()
-        if result:
-            lista = []
-            for convite in result:
-                lista.append(Convite(convite['id_convite'], convite['grupo_id'], convite['convidado_matricula']))
-            return lista
-        return None
+        try:
+            convite = ConviteDAO.get_convite(id_convite)
+            db.execute(
+                "UPDATE aluno SET grupo_id = ? WHERE matricula = ?",
+                (convite.grupo_id, convite.convidado_matricula),
+            )
+            db.commit()
+        except db.IntegrityError:
+            return False
+
+        self.delete_convite(id_convite)
+        return True

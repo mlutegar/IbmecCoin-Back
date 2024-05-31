@@ -1,0 +1,16 @@
+<h1>CONVITES</h1>
+
+{% for convite in convites %}
+    <p>{{ convite.id_convite }} - {{ convite.grupo_id }} - {{ convite.convidado_matricula }}</p>
+    <a href="{{url_for('grupo.aceitar', convite=convite.id_convite)}}">Aceitar</a>
+{% endfor %}
+
+{#
+CREATE TABLE convite (
+    id_convite INTEGER PRIMARY KEY AUTOINCREMENT,
+    grupo_id INTEGER NOT NULL,
+    convidado_matricula INTEGER NOT NULL,
+    FOREIGN KEY (grupo_id) REFERENCES grupo (id_grupo),
+    FOREIGN KEY (convidado_matricula) REFERENCES aluno (matricula)
+);
+#}
