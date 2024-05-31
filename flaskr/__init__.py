@@ -1,12 +1,16 @@
 import os
 
-from flask import Flask, jsonify, render_template
-import datetime
+from flaskr.dao.user_dao import UserDAO
+from flaskr.utils import db
+from flask import Flask, render_template, redirect, url_for, session
 
-# create_app: função que cria a aplicação flask principal
-# parametros: test_config: argumento opcional que permite passar configurações para a aplicação
-def create_app(test_config=None): # test_config=None é um argumento opcional
-    # create and configure the app
+
+def create_app(test_config=None):
+    """
+    Cria a aplicação Flask principal.
+    :param test_config: Argumento opcional que permite passar configurações para a aplicação
+    :return: retorna a aplicação Flask criada
+    """
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
@@ -27,42 +31,33 @@ def create_app(test_config=None): # test_config=None é um argumento opcional
         pass
 
     # Inicializando o banco de dados
-    from . import db
+    from flaskr.utils import db
     db.init_app(app)
 
-    # index: rota principal da aplicação, retorna uma mensagem de boas-vindas
     @app.route('/')
     def index():
         """
         Rota principal da aplicação, retorna uma mensagem de boas-vindas.
+        :return: Retorna uma mensagem de boas-vindas
         """
-        return render_template('/index.html')
+        if 'matricula' in session:
+            matricula = session['matricula']
+            dao = UserDAO()
+            user = dao.get_user(matricula)
+            if user.tipo == 'aluno':
+                return redirect(url_for('aluno.aluno'))
+            elif user.tipo == 'professor':
+                return redirect(url_for('professor.professor'))
 
-    # get_data: função que retorna dados para exibição em uma aplicação React
-    # parametros: nenhum
-    # retorno: retorna um JSON com os dados
-    @app.route('/data')
-    def get_data():
-        """
-        Retorna dados para exibição em uma aplicação React.
-        """
-        # Obtendo a data e hora atual
-        x = datetime.datetime.now()
+        return render_template('index.html')
 
-        # Retornando dados no formato JSON
-        return jsonify({
-            'Name': "geek",
-            "Age": "22",
-            "Date": x.strftime("%Y-%m-%d %H:%M:%S"),
-            "Programming": "Python"
-        })
-
-    from . import auth, qrcode, blog, transfer, prof
+    from . import aluno, auth, grupo, professor, qrcode, turma
+    app.register_blueprint(aluno.bp)
     app.register_blueprint(auth.bp)
-    app.register_blueprint(blog.bp)
+    app.register_blueprint(grupo.bp)
+    app.register_blueprint(professor.bp)
     app.register_blueprint(qrcode.bp)
-    app.register_blueprint(transfer.bp)
-    app.register_blueprint(prof.bp)
+    app.register_blueprint(turma.bp)
 
     app.add_url_rule('/', endpoint='index')
 

@@ -1,0 +1,34 @@
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<h1>PROFESSOR</h1>
+
+<h2>INFORMAÇÕES</h2>
+<p>Matrícula: {{ professor.matricula }}</p>
+<p>Nome: {{ professor.nome }}</p>
+<p>Email: {{ professor.email }}</p>
+<p>Turma: {{ professor.turma_id }}</p>
+<a href="">Editar informações</a>
+
+<h2>TURMA</h2>
+<a href="">Ver turma</a>
+
+<h2>QRCODE</h2>
+<a href="{{ url_for('qrcode.foto', token='new') }}">Gerar qr code</a>
+<a href="{{ url_for('qrcode.foto', token='last') }}">Vê último qr code gerado</a>
+
+<h2>PONTUAR</h2>
+<a href="{{ url_for('professor.beneficiar') }}">Beneficiar aluno</a>
+
+<h2>HISTÓRICO</h2>
+<a href="{{ url_for('professor.transacoes') }}">Ver transacoes</a>
+
+<h2>LOGIN</h2>
+<a href="{{ url_for('auth.logout') }}">Logout</a>

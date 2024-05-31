@@ -1,26 +1,25 @@
-from flaskr.db import get_db
-from flaskr.dao.user_dao import UserDao
+from flaskr.utils.db import get_db
+from flaskr.dao.user_dao import UserDAO
 from flaskr.entities.professor import Professor
 
 
-class ProfessorDao(UserDao):
+class ProfessorDAO(UserDAO):
     """
     Classe que representa o DAO de professor.
 
     Métodos
     """
 
-    @staticmethod
-    def insert_professor(matricula, senha, tipo, email):
+    def insert_professor(self, nome, matricula, senha, email):
         """
         Insere um professor no banco de dados.
+        :param nome: Nome do professor
         :param matricula: Matrícula do professor
         :param senha: Senha do professor
-        :param tipo: Tipo do professor
         :param email: Email do professor
         :return: True se o professor foi inserido com sucesso, False caso contrário
         """
-        super().insert_user(matricula, senha, tipo, email)
+        super().insert_user(nome, matricula, senha, "professor", email)
 
         db = get_db()
 
@@ -34,13 +33,16 @@ class ProfessorDao(UserDao):
             return False
         return True
 
-    @staticmethod
-    def get_professor(matricula):
+    def get_professor(self, matricula):
         """
         Seleciona um professor no banco de dados.
         :param matricula: Matrícula do professor
         :return: Objeto do tipo Professor, ou None se o professor não for encontrado
         """
+        user = super().get_user(matricula)
+        if not user:
+            return None
+
         db = get_db()
 
         try:
@@ -52,19 +54,17 @@ class ProfessorDao(UserDao):
 
         if resultado:
             professor = Professor(
-                resultado['matricula'],
-                resultado['senha'],
-                resultado['tipo'],
-                resultado['nome'],
-                resultado['email'],
+                user.matricula,
+                user.senha,
+                user.nome,
+                user.email,
             )
             if resultado['turma_id']:
                 professor.set_turma_id(resultado['turma_id'])
             return professor
         return None
 
-    @staticmethod
-    def get_all_professor():
+    def get_all_professor(self):
         """
         Seleciona todos os professores no banco de dados.
         :return: Lista de objetos do tipo Professor, ou None se não houver professores
@@ -80,12 +80,13 @@ class ProfessorDao(UserDao):
 
         professores = []
         for row in resultado:
+            user = super().get_user(row['matricula'])
+
             professor = Professor(
-                row['matricula'],
-                row['senha'],
-                row['tipo'],
-                row['nome'],
-                row['email'],
+                user.matricula,
+                user.senha,
+                user.nome,
+                user.email,
             )
             if row['turma_id']:
                 professor.set_turma_id(row['turma_id'])
@@ -93,8 +94,7 @@ class ProfessorDao(UserDao):
 
         return professores
 
-    @staticmethod
-    def update_professor(matricula, **kwargs):
+    def update_professor(self, matricula, **kwargs):
         """
         Atualiza os campos de um professor no banco de dados com base nos argumentos fornecidos.
         :param matricula: Matrícula do professor

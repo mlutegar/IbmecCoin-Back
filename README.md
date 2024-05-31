@@ -20,7 +20,7 @@ flask --app flaskr init-db
 
 ## Sobre o Projeto
 
-O projeto IBMEC COIN tem como objetivo principal promover o engajamento dos alunos por meio de uma moeda virtual utilizada como recompensa dentro da sala de aula. Esta iniciativa busca incentivar a participação ativa dos estudantes, oferecendo uma plataforma de estímulo e reconhecimento de seu desempenho acadêmico.
+O projeto IBMEC COIN visa principal promover o engajamento dos alunos por meio de uma moeda virtual utilizada como recompensa dentro da sala de aula. Esta iniciativa busca incentivar a participação ativa dos estudantes, oferecendo uma plataforma de estímulo e reconhecimento de seu desempenho acadêmico.
 
 ## Tecnologias Utilizadas
 
@@ -28,6 +28,6 @@ O back end do projeto foi desenvolvido utilizando Flask, um framework web em Pyt
 
 ## Sobre o IBMEC
 
-O IBMEC é uma instituição de ensino superior com reconhecimento nacional e internacional, focada na formação de líderes e profissionais altamente qualificados. Fundada com o propósito de oferecer uma educação de excelência, o IBMEC tem como missão preparar seus alunos para os desafios do mercado de trabalho globalizado.
+O IBMEC é uma instituição de ensino superior com reconhecimento (inter)nacional, focada na formação de líderes e profissionais altamente qualificados. Fundada com o propósito de oferecer uma educação de excelência, o IBMEC tem como missão preparar seus alunos para os desafios do mercado de trabalho globalizado.
 
 Para mais informações sobre o IBMEC, visite [o site oficial](https://www.ibmec.br/).

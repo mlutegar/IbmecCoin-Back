@@ -1,0 +1,14 @@
+<h1>TURMA</h1>
+<h2>INFORMAÇÕES</h2>
+<p>Materia: {{turma.nome}}</p>
+<p>Qtd. Alunos: {{turma.qtdAlunos}}</p>
+<p>Professor: {{turma.professor}}</p>
+
+<h2>ALUNOS</h2>
+<ul>
+    {% for aluno in turma.alunos %}
+        <li>{{aluno.nome}}</li>
+    {% endfor %}
+</ul>
+
+<a href="{{url_for('/')}}">Voltar</a>

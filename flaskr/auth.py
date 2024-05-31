@@ -1,29 +1,30 @@
 import functools
-
-from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
-)
+from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
-
-from flaskr.dao.aluno_dao import AlunoDao
-from flaskr.dao.professor_dao import ProfessorDao
-from flaskr.dao.user_dao import UserDao
-from flaskr.db import get_db
+from flaskr.dao.aluno_dao import AlunoDAO
+from flaskr.dao.professor_dao import ProfessorDAO
+from flaskr.dao.user_dao import UserDAO
+from flaskr.utils.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-# registro_user: rota para registrar um aluno no sistema
-@bp.route('/registro_user', methods=('GET', 'POST'))
-def registro_user():
-    # Instanciando os DAOs
-    aluno = AlunoDao()
-    professor = ProfessorDao()
-    user = UserDao()
+
+@bp.route('/registro', methods=('GET', 'POST'))
+def registro():
+    """
+    Rota para registrar um usuário no sistema
+    :return: página de registro
+    """
+    db = get_db()
+    dao = UserDAO()
+    pagina = "registro"
 
     # Se o método for POST, significa que o formulário foi submetido
     if request.method == 'POST':
         matricula = request.form['matricula']
+        nome = request.form['nome']
         senha = request.form['senha']
+        email = request.form['email']
         tipo = request.form['tipo']
         error = None
 
@@ -37,43 +38,43 @@ def registro_user():
 
         if len(matricula) < 9:
             flash('Matrícula inválida.')
-            return render_template('auth/registro_user.html')
+            return render_template('auth/registro.html')
 
         if len(senha) < 8:
             flash('Senha inválida.')
-            return render_template('auth/registro_user.html')
+            return render_template('auth/registro.html')
 
-        # Se não houver erro, tenta inserir o aluno no banco de dados, senão, exibe o erro na tela e não insere
+        if tipo == "aluno":
+            dao = AlunoDAO()
+        elif tipo == "professor":
+            dao = ProfessorDAO()
+
         if error is None:
             try:
-                if insert(matricula, generate_password_hash(senha), tipo) == 1:
-                    id = get_id_by_matricula(matricula)
-                    if id == -1:
-                        error = f"Erro na obtenção do id do usuário {matricula}."
-                        return error
-                else:
-                    error = f"Erro ao inserir usuário {matricula}."
-                    return error
-
                 if tipo == "aluno":
-                    aluno.insert(id)
+                    dao.insert_aluno(nome, matricula, generate_password_hash(senha), email)
+                    pagina = "aluno.aluno"
                 elif tipo == "professor":
-                    if professor.insert_professor(id) == -1:
-                        error = f"Erro ao inserir professor {matricula}."
-                        return error
-            except get_db().IntegrityError:
-                error = f"User {matricula} is already registered."
+                    dao.insert_professor(nome, matricula, generate_password_hash(senha), email)
+                    pagina = "professor.professor"
+            except db.IntegrityError:
+                pass
             else:
-                logar(user.select_by_id(id))
-                return redirect(url_for("index"))
-        flash(error)
+                db.commit()
+                user = dao.get_user(matricula)
+                logar(user)
+                return redirect(url_for(pagina))
 
-    return render_template('auth/registro_user.html')
+    return render_template('auth/registro.html')
 
-# login_aluno: rota para logar um aluno no sistema
-@bp.route('/login_user', methods=('GET', 'POST'))
-def login_user():
-    userDao = UserDao()
+
+@bp.route('/login', methods=('GET', 'POST'))
+def login():
+    """
+    Rota para conectar um usuário no sistema
+    :return: página de login
+    """
+    dao = UserDAO()
 
     if request.method == 'POST':
         matricula = request.form['matricula']
@@ -81,76 +82,78 @@ def login_user():
 
         if not matricula:
             flash('Matrícula é obrigatória.')
-            return render_template('auth/login_user.html')
+            return render_template('auth/login.html')
 
         if not senha:
             flash('Senha é obrigatória.')
-            return render_template('auth/login_user.html')
-
-        if len(matricula) < 9:
-            flash('Matrícula inválida.')
-            return render_template('auth/login_user.html')
-
-        if len(senha) < 8:
-            flash('Senha inválida.')
-            return render_template('auth/login_user.html')
+            return render_template('auth/login.html')
 
         error = None
-
-        tipo = get_tipo_by_matricula(matricula)
-
-        if tipo == -1:
-            flash("Matrícula inválida.")
-            return render_template('auth/login_user.html')
-
-        if tipo == "aluno":
-            user = select_aluno_by_matricula(matricula)
-        elif tipo == "professor":
-            user = select_professor_by_matricula(matricula)
+        user = dao.get_user(matricula)
 
         if user is None:
             error = 'Incorrect matricula.'
-        elif not check_password_hash(user['senha'], senha):
+        elif not check_password_hash(user.senha, senha):
             error = 'Senha incorreta.'
 
         if error is None:
-            logar(user)
-            return redirect(url_for('index'))
+            if user.tipo == "aluno":
+                dao = AlunoDAO()
+                user = dao.get_aluno(matricula)
+            elif user.tipo == "professor":
+                dao = ProfessorDAO()
+                user = dao.get_professor(matricula)
 
+            logar(user)
+
+            if user.tipo == "aluno":
+                return redirect(url_for('aluno.aluno'))
+            elif user.tipo == "professor":
+                return redirect(url_for('professor.professor'))
         flash(error)
 
-    return render_template('auth/login_user.html')
+    return render_template('auth/login.html')
 
 
-def logar(user):
-    session.clear()
-    session['user_id'] = user['id_user']
-
-
-# load_logged_in_user: função que carrega o usuário logado
 @bp.before_app_request
 def load_logged_in_user():
-    user_id = session.get('user_id')
+    """
+    Função que carrega o login
+    :return: usuário logado
+    """
+    matricula = session.get('matricula')
 
-    if user_id is None:
+    if matricula is None:
         g.user = None
     else:
-        user = UserDao()
-        if get_tipo_by_id(user_id) == "aluno":
-            g.user = select_aluno(user_id)
-        elif get_tipo_by_id(user_id) == "professor":
-            g.user = select_professor(user_id)
+        dao = UserDAO()
+        user = dao.get_user(matricula)
+        if user.tipo == "aluno":
+            dao = AlunoDAO()
+            g.user = dao.get_aluno(matricula)
+        elif user.tipo == "professor":
+            dao = ProfessorDAO()
+            g.user = dao.get_professor(matricula)
         else:
             g.user = None
 
-# logout: rota para deslogar um usuário
+
 @bp.route('/logout')
 def logout():
+    """
+    Função que desconecta o usuário
+    :return: página inicial
+    """
     session.clear()
     return redirect(url_for('index'))
 
-# login_required: função que verifica se o usuário está logado
+
 def login_required(view):
+    """
+    Função que verifica se o usuário está logado
+    :param view: Função que será verificada
+    :return: Função que verifica se o usuário está logado
+    """
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
@@ -159,3 +162,12 @@ def login_required(view):
         return view(**kwargs)
 
     return wrapped_view
+
+
+def logar(user):
+    """
+    Função que loga o usuário
+    """
+    user_str = str(user.matricula)
+    session.clear()
+    session['matricula'] = user_str

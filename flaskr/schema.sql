@@ -5,6 +5,8 @@ DROP TABLE IF EXISTS turma;
 DROP TABLE IF EXISTS grupo;
 DROP TABLE IF EXISTS transacao;
 DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS convite;
+DROP TABLE IF EXISTS item_loja;
 
 CREATE TABLE user (
     matricula INTEGER PRIMARY KEY NOT NULL,
@@ -35,7 +37,7 @@ CREATE TABLE turma (
   id_turma INTEGER PRIMARY KEY AUTOINCREMENT,
   nome TEXT NOT NULL,
   professor_id INTEGER NOT NULL,
-  FOREIGN KEY (professor_id) REFERENCES professor (id_professor)
+  FOREIGN KEY (professor_id) REFERENCES professor (matricula)
 );
 
 CREATE TABLE transacao (
@@ -44,8 +46,8 @@ CREATE TABLE transacao (
   receptor_id INTEGER NOT NULL,
   valor INTEGER NOT NULL,
   data TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (emissor_id) REFERENCES aluno (id_aluno),
-    FOREIGN KEY (receptor_id) REFERENCES aluno (id_aluno)
+  FOREIGN KEY (emissor_id) REFERENCES aluno (matricula),
+    FOREIGN KEY (receptor_id) REFERENCES aluno (matricula)
 );
 
 CREATE TABLE qrcode (
@@ -59,7 +61,31 @@ CREATE TABLE qrcode (
 CREATE TABLE grupo (
     id_grupo INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
-    valor_max INTEGER NOT NULL,
+    descricao TEXT,
+    quantidade_max INTEGER DEFAULT 5,
     criador_matricula INTEGER NOT NULL,
     FOREIGN KEY (criador_matricula) REFERENCES aluno (matricula)
+);
+
+CREATE TABLE convite (
+    id_convite INTEGER PRIMARY KEY AUTOINCREMENT,
+    grupo_id INTEGER NOT NULL,
+    convidado_matricula INTEGER NOT NULL,
+    FOREIGN KEY (grupo_id) REFERENCES grupo (id_grupo),
+    FOREIGN KEY (convidado_matricula) REFERENCES aluno (matricula)
+);
+
+CREATE TABLE item_loja (
+    id_item INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    valor INTEGER NOT NULL
+);
+
+CREATE TABLE item_comprado (
+    id_item_comprado INTEGER PRIMARY KEY AUTOINCREMENT,
+    item_id INTEGER NOT NULL,
+    aluno_id INTEGER NOT NULL,
+    data_compra TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (item_id) REFERENCES item_loja (id_item),
+    FOREIGN KEY (aluno_id) REFERENCES aluno (matricula)
 );

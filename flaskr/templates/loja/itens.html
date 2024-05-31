@@ -1,0 +1,10 @@
+<h1>LOJA - ITENS</h1>
+
+<ul>
+    {% for item in itens %}
+        <li>
+            <a href="{{url_for('loja.item', item_id=item.id)}}">{{item.nome}}</a>
+            <a href='{{ url_for('loja.comprar', item_id = item.id)}}'>Comprar</a>
+        </li>
+    {% endfor %}
+</ul>

@@ -1,43 +1,30 @@
-"""
-Módulo que contém as funções relacionadas ao qrcode, como a criação de um token, a geração de um qrcode a partir de um
-token e a validação de um token. Além disso, contém a rota para exibir a foto do qrcode na tela.
-- A rota /foto/<token>: exibe a foto do qrcode na tela a partir de um token. Se o token não for passado, um novo token é gerado.
-- A rota /leitor: exibe a página do leitor de qrcode, permite que o usuário adiciona o token manualmente ou escaneie o qrcode que resgatará o token e verificará se o token é válido e caso for, adicionará saldo na conta do usuário aluno.
-- A rota /validar/<token>: valida um token, adiciona saldo na conta do usuário aluno e desativa o token.
-"""
-
-import functools
 import secrets
+import segno
 from datetime import datetime, timedelta
-
-from dateutil.utils import today
-from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
-)
-
-from flaskr.db import get_db
-from flaskr.dao.qr_code_dao import QrCodeDAO
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flaskr.dao.qrcode_dao import QrCodeDAO
 
 bp = Blueprint('qrcode', __name__, url_prefix='/qrcode')
 
-# foto: rota para exibir a foto do qrcode na tela
+
 @bp.route('/foto/<token>', methods=('GET', 'POST'))
 def foto(token):
     """
     Função que exibe a foto do qrcode na tela a partir de um token. Se o token não for passado, um novo token é gerado.
-    :param token: token a ser utilizado no qrcode
-    :return: renderiza a página com a foto do qrcode
+    :param token: Token a ser utilizado no qrcode
+    :return: Renderiza a página com a foto do qrcode
     """
 
     if token == "last":
         token = recuperarUltimoToken()
 
     if token == "new":
-        token = criarToken(1, datetime.today() + timedelta(days=1))
+        token = criar_token(1, datetime.today() + timedelta(days=1))
 
     img = gerarQrcode(token)
 
     return render_template('qrcode/foto.html', token=token, img=img)
+
 
 @bp.route('/leitor', methods=('GET', 'POST'))
 def leitor():
@@ -61,15 +48,16 @@ def leitor():
 @bp.route('/validar/<token>', methods=('GET', 'POST'))
 def validar(token):
     """
-    Função que valida um token, adiciona saldo na conta do usuário aluno e desativa o token
-    :param token: token a ser utilizado no qrcode
-    :return: renderiza a página de sucesso
+    Função que valida um token, adiciona saldo na conta do usuário aluno e o desativa.
+    :param token: Token a ser utilizado no qrcode
+    :return: Renderiza a página de sucesso
     """
     tk = QrCodeDAO()
-    tk.ativar(token)
+    tk.get_qrcode(token)
     return render_template('qrcode/validar.html', token=token)
 
-def criarToken(valor, validade):
+
+def criar_token(valor, validade):
     """
     Função que cria um token para ser utilizado no qrcode
     :return: token gerado pelo método token_urlsafe
@@ -77,9 +65,12 @@ def criarToken(valor, validade):
     tk = QrCodeDAO()
     token = secrets.token_urlsafe()
 
-    tk.insert_qrcode(token, valor, validade)
+    if tk.insert_qrcode(token, valor, validade):
+        return token
 
-    return token
+    return None
+
+
 
 def recuperarUltimoToken():
     """
@@ -87,19 +78,18 @@ def recuperarUltimoToken():
     :return: o último token gerado
     """
     tk = QrCodeDAO()
-    return tk.get_lastqrcode()
+    return tk.get_last_qrcode()
+
 
 def gerarQrcode(token):
     """
-    Função que gera uma imagem de qrcode, usando a biblioteca segno, a partir de um token e retorna a imagem em formato base64
+    Função que gera uma imagem de qrcode, usando a biblioteca segno, a partir de um token e retorna a imagem em formato
+    base64
     :param token:
     :return: uma string com a imagem em formato base64
     """
-    import segno
     qr = segno.make_qr(token)
     return qr.svg_data_uri(scale=5)
-
-
 
 #
 #

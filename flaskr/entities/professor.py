@@ -2,8 +2,8 @@ from flaskr.entities.user import User
 
 
 class Professor(User):
-    def __init__(self, matricula, senha, tipo, nome, email):
-        super().__init__(matricula, senha, tipo, nome, email)
+    def __init__(self, matricula, senha, nome, email):
+        super().__init__(matricula, senha, "professor", nome, email)
         self.turma_id = None
 
     def set_turma_id(self, turma_id):

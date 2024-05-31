@@ -1,9 +1,9 @@
 # UserDao: classe responsável por realizar operações no banco de dados relacionadas a entidade User
-from flaskr.db import get_db
+from flaskr.utils.db import get_db
 from flaskr.entities.user import User
 
 
-class UserDao:
+class UserDAO:
     """
     Classe responsável por realizar operações no banco de dados relacionadas a entidade User
 
@@ -16,9 +16,10 @@ class UserDao:
     - delete_user(matricula): Deleta um usuário do banco de dados
     """
     @staticmethod
-    def insert_user(matricula, senha, tipo, email):
+    def insert_user(nome, matricula, senha, tipo, email):
         """
         Insere um usuário no banco de dados
+        :param nome: nome do usuário
         :param matricula: matrícula do usuário
         :param senha: senha do usuário
         :param tipo: tipo do usuário
@@ -29,8 +30,8 @@ class UserDao:
         db = get_db()
         try:
             db.execute(
-                "INSERT INTO user (matricula, senha, tipo, email) VALUES (?, ?, ?, ?)",
-                (matricula, senha, tipo, email),
+                "INSERT INTO user (nome, matricula, senha, tipo, email) VALUES (?, ?, ?, ?, ?)",
+                (nome, matricula, senha, tipo, email),
             )
             db.commit()
         except db.IntegrityError:
@@ -38,7 +39,7 @@ class UserDao:
         return True
 
     @staticmethod
-    def get_user_by_matricula(matricula: str):
+    def get_user(matricula: str):
         """
         Seleciona um usuário no banco de dados.
         :param matricula: Matrícula do usuário
@@ -48,7 +49,7 @@ class UserDao:
         query = "SELECT * FROM user WHERE matricula = ?"
         result = db.execute(query, (matricula,)).fetchone()
         if result:
-            user = User(result['matricula'], result['senha'], result['tipo'], result['id'], result['email'])
+            user = User(result['matricula'], result['senha'], result['tipo'], result['nome'], result['email'])
             return user
         return None
 
@@ -60,10 +61,10 @@ class UserDao:
         :return: Objeto do tipo User, ou None se o usuário não for encontrado
         """
         db = get_db()
-        query = "SELECT * FROM user WHERE id = ?"
+        query = "SELECT * FROM user WHERE matricula = ?"
         result = db.execute(query, (id_user,)).fetchone()
         if result:
-            user = User(result['matricula'], result['senha'], result['tipo'], result['id'], result['email'])
+            user = User(result['matricula'], result['senha'], result['tipo'], result['nome'], result['email'])
             return user
         return None
 

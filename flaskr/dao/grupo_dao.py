@@ -1,4 +1,4 @@
-from flaskr.db import get_db
+from flaskr.utils.db import get_db
 from flaskr.entities.grupo import Grupo
 
 
@@ -13,19 +13,20 @@ class GrupoDAO:
     - update_grupo(id_grupo, **kwargs): Atualiza os campos de um grupo no banco de dados
     """
     @staticmethod
-    def insert_grupo(nome, valor_max, criador_matricula):
+    def insert_grupo(nome, valor_max, descricao, criador_matricula):
         """
         Insere um grupo no banco de dados
         :param nome: nome do grupo
         :param valor_max: valor máximo de saldo que um aluno pode ter no grupo
+        :param descricao: descrição do grupo
         :param criador_matricula: matrícula do criador do grupo
         :return: True se o grupo foi inserido com sucesso, False caso contrário
         """
         db = get_db()
         try:
             db.execute(
-                "INSERT INTO grupo (nome, valor_max, criador_matricula) VALUES (?, ?, ?)",
-                (nome, valor_max, criador_matricula),
+                "INSERT INTO grupo (nome, quantidade_max, descricao, criador_matricula) VALUES (?, ?, ?, ?)",
+                (nome, valor_max, descricao, criador_matricula),
             )
             db.commit()
         except db.IntegrityError:
@@ -43,7 +44,22 @@ class GrupoDAO:
         query = "SELECT * FROM grupo WHERE id_grupo = ?"
         result = db.execute(query, (id_grupo,)).fetchone()
         if result:
-            grupo = Grupo(result['id_grupo'], result['nome'], result['valor_max'], result['criador_matricula'])
+            grupo = Grupo(result['id_grupo'], result['nome'], result['descricao'], result['criador_matricula'])
+            return grupo
+        return None
+
+    @staticmethod
+    def get_grupo_by_matricula(matricula):
+        """
+        Seleciona um grupo no banco de dados.
+        :param matricula: Matrícula do criador do grupo
+        :return: Objeto do tipo Grupo, ou None se o grupo não for encontrado
+        """
+        db = get_db()
+        query = "SELECT * FROM grupo WHERE criador_matricula = ?"
+        result = db.execute(query, (matricula,)).fetchone()
+        if result:
+            grupo = Grupo(result['id_grupo'], result['nome'], result['descricao'], result['criador_matricula'])
             return grupo
         return None
 
@@ -78,6 +94,25 @@ class GrupoDAO:
         query = f"UPDATE grupo SET {set_clause} WHERE id_grupo = ?"
         try:
             db.execute(query, values)
+            db.commit()
+        except db.IntegrityError:
+            return False
+        return True
+
+    @staticmethod
+    def convidar_aluno(destinatario, grupo):
+        """
+        Convida um aluno para um grupo
+        :param destinatario: Aluno destinatário
+        :param grupo: Objeto do tipo Grupo
+        :return: True se o convite foi enviado com sucesso, False caso contrário
+        """
+        db = get_db()
+        try:
+            db.execute(
+                "INSERT INTO convite (grupo_id, convidado_matricula) VALUES (?, ?)",
+                (grupo.id_grupo, destinatario.matricula),
+            )
             db.commit()
         except db.IntegrityError:
             return False
