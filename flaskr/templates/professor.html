@@ -14,11 +14,23 @@
 <p>Matrícula: {{ professor.matricula }}</p>
 <p>Nome: {{ professor.nome }}</p>
 <p>Email: {{ professor.email }}</p>
-<p>Turma: {{ professor.id_turma }}</p>
-<a href="">Editar informações</a>
 
 <h2>TURMA</h2>
-<a href="{{ url_for('turma.informacao', id_turma = professor.id_turma) }}">Ver turma</a>
+<table>
+<tr>
+    <th>Nome</th>
+    <th>Quantidade alunos</th>
+    <th>Acessar</th>
+</tr>
+{% for turma in turmas %}
+<tr>
+    <td>{{ turma.nome }}</td>
+    <td>{{ turma.get_quantidade_turma() }}</td>
+    <td><a href="{{ url_for('turma.informacao', id_turma = turma.id_turma) }}">Acessar</a></td>
+</tr>
+{% endfor %}
+</table>
+
 <a href="{{ url_for('turma.criar') }}">Criar turma</a>
 
 <h2>QRCODE</h2>

@@ -29,7 +29,6 @@ CREATE TABLE aluno (
 
 CREATE TABLE professor (
     matricula INTEGER NOT NULL,
-    id_turma INTEGER,
     FOREIGN KEY (matricula) REFERENCES user (matricula)
 );
 
@@ -93,13 +92,16 @@ CREATE TABLE item_comprado (
 );
 
 -- INSERTS INICIAIS PARA TESTES
+
 INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (1, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'aluno', 'a', 'a@a');
-INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (2, 'scrypt:32768:8:1$11rEC6cZwHGbFzZq$35552a351b719b4aa3c3ea6d19e1816e4986cfef7113ef326c5ea8c80c1548ee47a9759928b6f967794577c9ef82b4c22cac8b9a1f9c576069473755c9c7a612', 'aluno', 'b', 'b@b');
-INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (3, 'scrypt:32768:8:1$43vCUsArFP0plCav$c23e2ee44c0312c5162ee0415dd9e4e173a8cb9ab49a7b1440b45602acd671441e747e2fa0b8257de6acb0c4dcfcb22292795685996734bb5673a4d34d41bda8', 'professor', 'c', 'c@c');
+INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (2, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'aluno', 'b', 'b@b');
+INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (3, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'professor', 'c', 'c@c');
+INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (4, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'aluno', 'd', 'd@d');
 
 INSERT INTO aluno (matricula, grupo_id, saldo, id_turma) VALUES (1, 1, 100, 1);
 INSERT INTO aluno (matricula, grupo_id, saldo, id_turma) VALUES (2, 1, 100, 1);
-INSERT INTO professor (matricula, id_turma) VALUES (3, 1);
+INSERT INTO aluno (matricula, grupo_id, saldo, id_turma) VALUES (4, null, 100, null);
+INSERT INTO professor (matricula) VALUES (3);
 
 INSERT INTO turma (nome, professor_matricula) VALUES ('turma1', 3);
 

@@ -21,9 +21,10 @@ def criar():
         validade = request.form['validade']
         qtd_usos = request.form['qtd_usos']
 
-        token = criar_token(valor, validade, int(qtd_usos))
+        tk = QrCodeDAO()
+        token = secrets.token_urlsafe()
 
-        if token is not None:
+        if tk.insert_qrcode(token, int(valor), validade, int(qtd_usos)):
             return redirect(url_for('qrcode.foto', token=token))
         else:
             flash("Erro ao criar o token")
@@ -93,21 +94,6 @@ def validar(token):
         return redirect(url_for("qrcode.leitor"))
 
     return render_template('qrcode/validar.html', token=qrcode.token)
-
-
-def criar_token(valor, validade, qtd_usos):
-    """
-    Função que cria um token para ser utilizado no qrcode
-    :return: token gerado pelo método token_urlsafe
-    """
-    tk = QrCodeDAO()
-    token = secrets.token_urlsafe()
-
-    if tk.insert_qrcode(token, valor, validade, qtd_usos):
-        return token
-
-    return None
-
 
 def recuperarUltimoToken():
     """

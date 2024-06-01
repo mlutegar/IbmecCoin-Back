@@ -33,7 +33,7 @@ class ProfessorDAO(UserDAO):
             return False
         return True
 
-    def get_professor(self, matricula):
+    def get_professor(self, matricula: int):
         """
         Seleciona um professor no banco de dados.
         :param matricula: Matrícula do professor
@@ -57,10 +57,8 @@ class ProfessorDAO(UserDAO):
                 user.matricula,
                 user.senha,
                 user.nome,
-                user.email,
+                user.email
             )
-            if resultado['id_turma']:
-                professor.set_id_turma(resultado['id_turma'])
             return professor
         return None
 
@@ -86,32 +84,7 @@ class ProfessorDAO(UserDAO):
                 user.matricula,
                 user.senha,
                 user.nome,
-                user.email,
+                user.email
             )
-            if row['id_turma']:
-                professor.set_id_turma(row['id_turma'])
             professores.append(professor)
-
         return professores
-
-    def update_professor(self, professor: Professor):
-        """
-        Atualiza os campos de um professor no banco de dados com base nos argumentos fornecidos.
-        :param professor: Objeto do tipo Professor
-        :return: True se o professor foi atualizado com sucesso, False caso contrário
-        """
-        user = super().get_user(professor.matricula)
-        if not user:
-            return False
-
-        db = get_db()
-
-        try:
-            db.execute(
-                "UPDATE professor SET id_turma = ? WHERE matricula = ?",
-                (professor.id_turma, professor.matricula),
-            )
-            db.commit()
-        except db.IntegrityError:
-            return False
-        return True

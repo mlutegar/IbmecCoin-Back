@@ -39,7 +39,7 @@ class UserDAO:
         return True
 
     @staticmethod
-    def get_user(matricula: str):
+    def get_user(matricula: int):
         """
         Seleciona um usuário no banco de dados.
         :param matricula: Matrícula do usuário
@@ -54,15 +54,15 @@ class UserDAO:
         return None
 
     @staticmethod
-    def get_user_by_id(id_user: int):
+    def get_user_by_matricula(user_matricula: int):
         """
         Seleciona um usuário no banco de dados.
-        :param id_user: id do usuário
+        :param user_matricula: Matrícula do usuário
         :return: Objeto do tipo User, ou None se o usuário não for encontrado
         """
         db = get_db()
         query = "SELECT * FROM user WHERE matricula = ?"
-        result = db.execute(query, (id_user,)).fetchone()
+        result = db.execute(query, (user_matricula,)).fetchone()
         if result:
             user = User(result['matricula'], result['senha'], result['tipo'], result['nome'], result['email'])
             return user

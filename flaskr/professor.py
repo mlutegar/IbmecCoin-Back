@@ -4,6 +4,7 @@ from flaskr.auth import login_required
 from flaskr.dao.aluno_dao import AlunoDAO
 from flaskr.dao.professor_dao import ProfessorDAO
 from flaskr.dao.transacao_dao import TransacaoDAO
+from flaskr.dao.turma_dao import TurmaDAO
 
 bp = Blueprint('professor', __name__, url_prefix='/professor')
 
@@ -15,15 +16,20 @@ def professor():
     Função que exibe a página de um aluno.
     :return: Renderiza a página de beneficiar um aluno
     """
+    if 'matricula' not in session:
+        flash("Usuário não encontrado")
+        return render_template('/')
+
+    professor_obj = ProfessorDAO().get_professor(session['matricula'])
+
     matricula = session['matricula']
     if matricula is None:
         flash("Usuário não encontrado")
         return render_template('/')
 
-    professorDao = ProfessorDAO()
-    professor_obj = professorDao.get_professor(matricula)
+    turmas = TurmaDAO().get_all_turmas_by_professor_matricula(professor_obj.matricula)
 
-    return render_template('professor.html', professor=professor_obj)
+    return render_template('professor.html', professor=professor_obj, turmas=turmas)
 
 
 @bp.route('/beneficiar', methods=('GET', 'POST'))

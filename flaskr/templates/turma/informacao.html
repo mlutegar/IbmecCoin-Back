@@ -1,3 +1,13 @@
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 <h1>TURMA</h1>
 <h2>INFORMAÇÕES</h2>
 <p>Materia: {{turma.nome}}</p>
@@ -5,7 +15,8 @@
 <p>Professor: {{turma.professor.nome}}</p>
 
 <h2>ALUNOS</h2>
-<table>
+{% if turma.turma %}
+    <table>
     <tr>
         <th>Matricula</th>
         <th>Nome</th>
@@ -19,10 +30,13 @@
         </tr>
     {% endfor %}
 </table>
+{% else %}
+    <h3>Não há alunos</h3>
+{% endif %}
 
 {% if user.tipo == "professor" %}
     <h2>ADICIONAR ALUNO</h2>
-    <form>
+    <form method="post">
         <label for="matricula"> Matricula
             <input type="text" name="matricula" placeholder="matricula">
         </label>

@@ -1,5 +1,5 @@
 class User:
-    def __init__(self, matricula, senha, tipo, nome, email):
+    def __init__(self, matricula: int, senha: str, tipo: str, nome: str, email: str):
         self.matricula = matricula
         self.senha = senha
         self.tipo = tipo
