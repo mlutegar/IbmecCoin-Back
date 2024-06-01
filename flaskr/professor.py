@@ -52,7 +52,9 @@ def beneficiar():
             flash("Usuário não encontrado")
             return render_template('professor/beneficiar.html')
 
-        alunoDao.update_aluno(matricula, saldo=quantidade+aluno.saldo)
+        aluno.saldo += int(quantidade)
+
+        alunoDao.update_aluno(aluno)
         flash("Aluno beneficiado com sucesso")
 
     return render_template('professor/beneficiar.html', alunos=alunos)

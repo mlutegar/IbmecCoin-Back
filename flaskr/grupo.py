@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, flash, session
 from flaskr.dao.aluno_dao import AlunoDAO
 from flaskr.dao.convite_dao import ConviteDAO
 from flaskr.dao.grupo_dao import GrupoDAO
-from flaskr.utils.transfer import processar_transferencia
+from flaskr.dao.transacao_dao import TransacaoDAO
 
 bp = Blueprint('grupo', __name__, url_prefix='/grupo')
 
@@ -62,30 +62,33 @@ def transferir():
     Função que exibe a página de transferência de IbmecCoins.
     Essa função também é responsável por processar o post do formulário de transferência de IbmecCoins.
     """
-    alunoDao = AlunoDAO()
-    matricula = session['matricula']
-    if matricula is None:
+    if 'matricula' not in session:
         return render_template('index.html')
 
-    remetente = alunoDao.get_aluno(matricula)
+    matricula = session['matricula']
+    remetente = AlunoDAO().get_aluno(matricula)
 
     if request.method == 'POST':
-        destinatario = request.form['destinatario']
+        destinatario = request.form['usuario']
         quantidade = request.form['quantidade']
 
-        destinatario = alunoDao.get_aluno(destinatario)
+        destinatario = AlunoDAO().get_aluno(destinatario)
         quantidade = int(quantidade)
 
-        if destinatario is None:
+        if destinatario is None or quantidade == "":
             flash('Usuário não encontrado')
             return render_template('grupo/transferir.html')
 
-        if not processar_transferencia(remetente, destinatario, quantidade):
-            flash('Transferência não realizada')
+        if not TransacaoDAO().insert_transacao(remetente.matricula, destinatario.matricula, quantidade):
+            flash('Não foi possível processar a transferência')
             return render_template('grupo/transferir.html')
 
         flash('Transferência realizada com sucesso')
-        return render_template('grupo/informacao.html')
+        return render_template(
+            'grupo/informacao.html',
+            aluno=remetente,
+            grupo=GrupoDAO().get_grupo_by_id(remetente.get_grupo_id())
+        )
 
     return render_template('grupo/transferir.html')
 
@@ -132,11 +135,12 @@ def convites():
     if matricula is None:
         return render_template('index.html')
 
-    user = AlunoDAO().get_user(session['matricula'])
-    grupo = GrupoDAO().get_grupo_by_id(user.get_grupo_id())
-    convites_lista = ConviteDAO().get_all_convites_by_matricula(user.matricula)
+    aluno = AlunoDAO().get_user(session['matricula'])
+    grupo = GrupoDAO().get_grupo_by_id(aluno.get_grupo_id())
+    convites_lista = ConviteDAO().get_all_convites_by_matricula(aluno.matricula)
 
     return render_template('grupo/convites.html', convites=convites_lista, aluno=aluno, grupo=grupo)
+
 
 @bp.route('/aceitar/<id_convite>', methods=('GET', 'POST'))
 def aceitar(id_convite):

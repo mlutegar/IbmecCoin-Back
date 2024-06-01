@@ -94,22 +94,23 @@ class ProfessorDAO(UserDAO):
 
         return professores
 
-    def update_professor(self, matricula, **kwargs):
+    def update_professor(self, professor: Professor):
         """
         Atualiza os campos de um professor no banco de dados com base nos argumentos fornecidos.
-        :param matricula: Matrícula do professor
-        :param kwargs: Dicionário de campos a serem atualizados
+        :param professor: Objeto do tipo Professor
         :return: True se o professor foi atualizado com sucesso, False caso contrário
         """
-        super().update_user(matricula, **kwargs)
+        user = super().get_user(professor.matricula)
+        if not user:
+            return False
 
         db = get_db()
-        set_clause = ", ".join(f"{key} = ?" for key in kwargs)
-        values = list(kwargs.values()) + [matricula]
-        query = f"UPDATE professor SET {set_clause} WHERE matricula = ?"
 
         try:
-            db.execute(query, values)
+            db.execute(
+                "UPDATE professor SET id_turma = ? WHERE matricula = ?",
+                (professor.id_turma, professor.matricula),
+            )
             db.commit()
         except db.IntegrityError:
             return False

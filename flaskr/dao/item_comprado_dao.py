@@ -10,14 +10,14 @@ class ItemCompradoDAO:
     Classe que representa o DAO de Item Comprado
     """
     @staticmethod
-    def buy_item(item_id: int, aluno_matricula: int):
+    def buy_item(id_item: int, aluno_matricula: int):
         """
         Compra um item na loja.
-        :param item_id: Item a ser comprado
+        :param id_item: Item a ser comprado
         :param aluno_matricula: Aluno que está comprando o item
         :return: True se o item foi comprado com sucesso, False caso contrário
         """
-        item = LojaDAO.get_item(item_id)
+        item = LojaDAO.get_item(id_item)
         aluno = AlunoDAO().get_aluno(aluno_matricula)
 
         if not item or not aluno or aluno.saldo < item.valor:
@@ -26,8 +26,8 @@ class ItemCompradoDAO:
         db = get_db()
         try:
             db.execute(
-                "INSERT INTO item_comprado (item_id, aluno_id) VALUES (?, ?)",
-                (item.id, aluno.matricula),
+                "INSERT INTO item_comprado (id_item, aluno_id) VALUES (?, ?)",
+                (item.id_item, aluno.matricula),
             )
             db.execute(
                 "UPDATE aluno SET saldo = ? WHERE matricula = ?",

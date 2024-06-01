@@ -1,4 +1,4 @@
-<h1>ITEM: {item.name}</h1>
+<h1>ITEM: {{ item.nome }}</h1>
 
-<p>Preço: {item.price}</p>
-<a href='{{ url_for('loja.comprar', item_id = item.id)}}'>Comprar</a>
+<p>Preço: {{ item.valor }}</p>
+<a href='{{ url_for('loja.comprar', id_item = item.id_item)}}'>Comprar</a>

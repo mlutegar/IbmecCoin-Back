@@ -8,7 +8,7 @@ class ItemComprado:
     """
     Entidade ItemComprado
     """
-    def __init__(self, item_id: int, aluno_matricula: int):
-        self.item = item_id
+    def __init__(self, id_item: int, aluno_matricula: int):
+        self.item = id_item
         self.aluno = aluno_matricula
         self.data_compra = datetime.now()

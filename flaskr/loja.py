@@ -52,19 +52,19 @@ def comprar(id_item):
     matricula = session['matricula']
 
     aluno = AlunoDAO().get_aluno(matricula)
-    item = LojaDAO().get_item(id_item)
+    item_obj = LojaDAO().get_item(id_item)
 
-    if aluno is None or item is None:
+    if aluno is None or item_obj is None:
         flash('Erro ao realizar a compra')
-        return render_template('/')
+        return render_template('loja/loja.html', itens=LojaDAO().get_all_items(), aluno=aluno)
 
-    if aluno.saldo < item.valor:
+    if aluno.saldo < item_obj.valor:
         flash('Saldo insuficiente')
-        return render_template('/loja')
+        return render_template('loja/loja.html', itens=LojaDAO().get_all_items(), aluno=aluno)
 
-    ItemCompradoDAO().buy_item(item.id_item, aluno.matricula)
-    TransacaoDAO().insert_transacao(item.valor, aluno.matricula)
+    ItemCompradoDAO().buy_item(item_obj.id_item, aluno.matricula)
+    TransacaoDAO().insert_transacao_loja(aluno.matricula, item_obj.id_item)
     flash('Compra realizada com sucesso')
 
-    return render_template('/loja')
+    return render_template('loja/comprar.html')
 

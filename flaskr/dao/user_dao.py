@@ -86,26 +86,21 @@ class UserDAO:
         return None
 
     @staticmethod
-    def update_user(matricula, **kwargs):
+    def update_user(user: User):
         """
         Atualiza os campos de um usuário no banco de dados com base nos argumentos fornecidos.
-        :param matricula: Matrícula do usuário
-        :param kwargs: Dicionário de campos a serem atualizados
+        :param user: Objeto do tipo User
         :return: True se o usuário foi atualizado com sucesso, False caso contrário
         """
         db = get_db()
-
-        set_clause = ", ".join(f"{key} = ?" for key in kwargs)
-        values = list(kwargs.values()) + [matricula]
-
-        query = f"UPDATE user SET {set_clause} WHERE matricula = ?"
-
         try:
-            db.execute(query, values)
+            db.execute(
+                "UPDATE user SET nome = ?, senha = ?, tipo = ?, email = ? WHERE matricula = ?",
+                (user.nome, user.senha, user.tipo, user.email, user.matricula)
+            )
             db.commit()
         except db.IntegrityError:
             return False
-
         return True
 
     @staticmethod

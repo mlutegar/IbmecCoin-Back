@@ -157,20 +157,23 @@ class AlunoDAO(UserDAO):
 
         return alunos
 
-    def update_aluno(self, matricula, **kwargs):
+    def update_aluno(self, aluno: Aluno):
         """
         Atualiza os campos de um usuário no banco de dados com base nos argumentos fornecidos.
-        :param matricula: Matrícula do usuário
-        :param kwargs: Dicionário de campos a serem atualizados
+        :param aluno: Objeto do tipo Aluno
         :return: True se o usuário foi atualizado com sucesso, False caso contrário
         """
-        super().update_user(matricula, **kwargs)
+        user = super().update_user(aluno)
+
+        if not user:
+            return False
+
         db = get_db()
-        set_clause = ", ".join(f"{key} = ?" for key in kwargs)
-        values = list(kwargs.values()) + [matricula]
-        query = f"UPDATE aluno SET {set_clause} WHERE matricula = ?"
         try:
-            db.execute(query, values)
+            db.execute(
+                "UPDATE aluno SET grupo_id = ?, saldo = ?, id_turma = ? WHERE matricula = ?",
+                (aluno.grupo_id, aluno.saldo, aluno.id_turma, aluno.matricula)
+            )
             db.commit()
         except db.IntegrityError:
             return False

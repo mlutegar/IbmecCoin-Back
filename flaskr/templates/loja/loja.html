@@ -1,10 +1,17 @@
 <h1>LOJA - ITENS</h1>
 
-<ul>
+<h2>TABELA</h2>
+<table>
+    <tr>
+        <th>Nome</th>
+        <th>Preço</th>
+        <th>Comprar</th>
+    </tr>
     {% for item in itens %}
-        <li>
-            <a href="{{url_for('loja.item', item_id=item.id)}}">{{item.nome}}</a>
-            <a href='{{ url_for('loja.comprar', item_id = item.id)}}'>Comprar</a>
-        </li>
+            <tr>
+                <td><a href="{{url_for('loja.item', id_item=item.id_item)}}">{{item.nome}}</a></td>
+                <td>{{item.valor}}</td>
+                <td><a href='{{ url_for('loja.comprar', id_item = item.id_item)}}'>Comprar</a></td>
+            </tr>
     {% endfor %}
-</ul>
+</table>

@@ -9,6 +9,29 @@ from flaskr.dao.qrcode_dao import QrCodeDAO
 bp = Blueprint('qrcode', __name__, url_prefix='/qrcode')
 
 
+@bp.route('/criar', methods=('GET', 'POST'))
+def criar():
+    """
+    Função que exibe a página de criação de qrcode, permitindo que o usuário adicione o valor, a validade e a quantidade
+    de usos do qrcode
+    :return: renderiza a página de criação de qrcode
+    """
+    if request.method == 'POST':
+        valor = request.form['valor']
+        validade = request.form['validade']
+        qtd_usos = request.form['qtd_usos']
+
+        token = criar_token(valor, validade, int(qtd_usos))
+
+        if token is not None:
+            return redirect(url_for('qrcode.foto', token=token))
+        else:
+            flash("Erro ao criar o token")
+            return redirect(url_for('error.erro'))
+
+    return render_template('qrcode/criar.html')
+
+
 @bp.route('/foto/<token>', methods=('GET', 'POST'))
 def foto(token):
     """
@@ -19,9 +42,6 @@ def foto(token):
 
     if token == "last":
         token = recuperarUltimoToken()
-
-    if token == "new":
-        token = criar_token(1, datetime.today() + timedelta(days=1))
 
     img = gerarQrcode(token)
 
@@ -58,16 +78,24 @@ def validar(token):
         return redirect(url_for('auth.login'))
 
     aluno = AlunoDAO().get_aluno(session['matricula'])
-    tk = QrCodeDAO().get_qrcode(token)
+    qrcode = QrCodeDAO().get_qrcode(token)
 
-    if tk is not None:
-        if tk.validade_data > datetime.now():
-            AlunoDAO().update_aumentar_saldo(aluno.matricula, tk.valor)
+    if qrcode is None:
+        flash("Token não existe")
+        return redirect(url_for("qrcode.leitor"))
 
-    return render_template('qrcode/validar.html', token=tk)
+    if qrcode.validade_data > datetime.now():
+        AlunoDAO().update_aumentar_saldo(aluno.matricula, qrcode.valor)
+        QrCodeDAO().update_diminuir_qtd_usos(qrcode.token)
+        return redirect(url_for("aluno.aluno", token=token))
+    else:
+        flash("Token vencido")
+        return redirect(url_for("qrcode.leitor"))
+
+    return render_template('qrcode/validar.html', token=qrcode.token)
 
 
-def criar_token(valor, validade, qtd_usos=1):
+def criar_token(valor, validade, qtd_usos):
     """
     Função que cria um token para ser utilizado no qrcode
     :return: token gerado pelo método token_urlsafe
@@ -79,7 +107,6 @@ def criar_token(valor, validade, qtd_usos=1):
         return token
 
     return None
-
 
 
 def recuperarUltimoToken():
@@ -100,30 +127,3 @@ def gerarQrcode(token):
     """
     qr = segno.make_qr(token)
     return qr.svg_data_uri(scale=5)
-
-#
-#
-# @bp.route('/registro_token/', methods=('GET', 'POST'))
-# def registro_token():
-#     tk = TokenQrCodeDao()
-#
-#     if request.method == 'POST':
-#         error = None
-#         token = criarToken()
-#         if error is None:
-#             try:
-#                 tk.insert(token)
-#                 return redirect(url_for("qrcode.exibir_token", token=token))
-#             except IntegrityError:
-#                 error = f"O {token} is already registered."
-#                 flash(error)
-#                 return redirect(url_for("index"))
-#
-#
-# # exibir token : função que recebe como parâmetro o token, gera o qrcode e exibe na tela
-# @bp.route('/exibir-token/<token>', methods=('GET'))
-# def exibir_token(token):
-#     tk = TokenQrCodeDao()
-#     img = gerar_qrcode(token)
-#
-#     return render_template('auth/exibir-token.html', img=img)

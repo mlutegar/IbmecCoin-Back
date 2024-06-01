@@ -109,6 +109,19 @@ class QrCodeDAO:
 
         return qrcodes
 
+    def update_diminuir_qtd_usos(self, token):
+        """
+        Função que atualiza a quantidade de usos do token
+        :param token: token a ser atualizado
+        :return: True se o token foi atualizado com sucesso, False caso contrário
+        """
+        qrcode = self.get_qrcode(token)
+
+        if qrcode.qtd_usos > 0:
+            qrcode.qtd_usos -= 1
+            return self.update_qrcode(qrcode.id_token, qtd_usos=qrcode.qtd_usos)
+        return False
+
     @staticmethod
     def update_qrcode(id_token, **kwargs):
         """

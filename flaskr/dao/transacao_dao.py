@@ -47,18 +47,18 @@ class TransacaoDAO:
         return True
 
     @staticmethod
-    def insert_transacao_loja(aluno_matricula, item_id):
+    def insert_transacao_loja(aluno_matricula, id_item):
         """
         Função que registra a transação de compra de um item na loja.
         :param aluno_matricula: Matrícula do aluno que comprou o item.
-        :param item_id: ID do item comprado.
+        :param id_item: ID do item comprado.
         :return: None
         """
-        item = LojaDAO().get_item(item_id)
+        item = LojaDAO().get_item(id_item)
         aluno = AlunoDAO().get_aluno(aluno_matricula)
         transacao = Transacao(aluno_matricula, 'loja', item.valor, datetime.datetime.now())
 
-        if item is None or aluno is None or aluno.saldo < item['valor']:
+        if item is None or aluno is None or aluno.saldo < item.valor:
             return False
 
         db = get_db()
@@ -72,7 +72,9 @@ class TransacaoDAO:
         except db.IntegrityError:
             return False
 
-        AlunoDAO().update_aluno(aluno.matricula, saldo=aluno.saldo - item['valor'])
+        aluno.saldo -= item.valor
+
+        AlunoDAO().update_aluno(aluno)
         return True
 
     @staticmethod
