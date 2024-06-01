@@ -1,0 +1,30 @@
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<h1>GRUPO</h1>
+
+<h2>INFORMAÇÃO</h2>
+<p>Nome: {{ grupo.nome }}</p>
+<p>Descrição: {{ grupo.descricao }}</p>
+
+<h2>MEMBROS</h2>
+{% if grupo.membros %}
+    <ul>
+    {% for member in grupo.membros %}
+        <li>{{ member.nome }} | <a href="{{url_for('grupo.transferir', destinatario=member.matricula)}}">Transferir</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Nenhum</p>
+{% endif %}
+<a href="{{ url_for('grupo.convidar') }}">Convidar</a>
+
+<h2>VOLTAR</h2>
+<a href="{{ url_for('index') }}">Voltar</a>

@@ -1,0 +1,45 @@
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<h1>LOJA - ITENS</h1>
+
+<h2>TABELA</h2>
+<table>
+    <tr>
+        <th>Nome</th>
+        <th>Preço</th>
+        {%  if user.tipo == "aluno" %}
+        <th>Comprar</th>
+        {% endif %}
+    </tr>
+    {% for item in itens %}
+            <tr>
+                <td><a href="{{url_for('loja.item', id_item=item.id_item)}}">{{item.nome}}</a></td>
+                <td>{{item.valor}}</td>
+                {%  if user.tipo == "aluno" %}
+                <td><a href='{{ url_for('loja.comprar', id_item = item.id_item)}}'>Comprar</a></td>
+                {% endif %}
+            </tr>
+    {% endfor %}
+</table>
+
+{% if user.tipo == "professor" %}
+    <h2>ADICIONAR ITEM</h2>
+    <form method="post">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" name="nome" required>
+        <label for="valor">Valor:</label>
+        <input type="number" id="valor" name="valor" required>
+        <input type="submit" value="Adicionar">
+    </form>
+{% endif %}
+
+<h2>VOLTAR</h2>
+<a href="{{url_for('index')}}">Voltar</a>

@@ -1,0 +1,16 @@
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<h1>Leitor de QRCode</h1>
+<p>Insira o código do QRCode ou scannear o QRCode</p>
+<form method="post">
+    <input type="text" name="token" placeholder="Código do QRCode">
+    <button type="submit">Validar</button>
+</form>
