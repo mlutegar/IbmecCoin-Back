@@ -48,20 +48,22 @@ def beneficiar():
 
         if quantidade == "" or matricula == "":
             flash("Preencha todos os campos")
-            return render_template('professor/beneficiar.html')
+            return render_template('professor/beneficiar.html',  alunos=alunos)
 
         if not quantidade.isnumeric():
             flash("Quantidade inválida")
-            return render_template('professor/beneficiar.html')
+            return render_template('professor/beneficiar.html',  alunos=alunos)
 
         if aluno is None:
             flash("Usuário não encontrado")
-            return render_template('professor/beneficiar.html')
+            return render_template('professor/beneficiar.html',  alunos=alunos)
 
         aluno.saldo += int(quantidade)
 
-        alunoDao.update_aluno(aluno)
-        flash("Aluno beneficiado com sucesso")
+        if alunoDao.update_aluno(aluno):
+            alunos = alunoDao.get_all_alunos()
+            flash("Aluno beneficiado com sucesso")
+            return render_template('professor/beneficiar.html', alunos=alunos)
 
     return render_template('professor/beneficiar.html', alunos=alunos)
 

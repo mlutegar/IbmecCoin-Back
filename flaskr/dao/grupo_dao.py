@@ -133,7 +133,7 @@ class GrupoDAO:
         db = get_db()
         try:
             db.execute(
-                "INSERT INTO convite (grupo_id, convidado_matricula) VALUES (?, ?)",
+                "INSERT INTO convite (id_grupo, convidado_matricula) VALUES (?, ?)",
                 (grupo.id_grupo, destinatario.matricula),
             )
             db.commit()

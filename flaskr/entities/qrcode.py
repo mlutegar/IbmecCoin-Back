@@ -8,8 +8,8 @@ class QrCode:
         self.valor = valor
         self.validade_data = validade_data
         self.qtd_usos = qtd_usos
-
         self.verifica_validade()
+        self.validade = validade
 
     def get_token(self):
         return self.token
@@ -22,6 +22,11 @@ class QrCode:
         self.validade = validade
 
     def verifica_validade(self):
+        if isinstance(self.validade_data, str):
+            self.validade_data = datetime.strptime(self.validade_data, "%Y-%m-%d %H:%M:%S")
+        elif isinstance(self.validade_data, int):
+            self.validade_data = datetime.fromtimestamp(self.validade_data)
+
         if self.validade_data < datetime.now():
             self.validade = False
             return False
@@ -48,5 +53,6 @@ class QrCode:
             json["token"],
             json["valor"],
             json["validade_data"],
+            json["qtd_usos"],
             json["validade"]
         )

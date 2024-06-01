@@ -26,12 +26,8 @@ class ItemCompradoDAO:
         db = get_db()
         try:
             db.execute(
-                "INSERT INTO item_comprado (id_item, aluno_id) VALUES (?, ?)",
+                "INSERT INTO item_comprado (item_id, aluno_id) VALUES (?, ?)",
                 (item.id_item, aluno.matricula),
-            )
-            db.execute(
-                "UPDATE aluno SET saldo = ? WHERE matricula = ?",
-                (aluno.saldo - item.valor, aluno.matricula),
             )
             db.commit()
         except db.IntegrityError:

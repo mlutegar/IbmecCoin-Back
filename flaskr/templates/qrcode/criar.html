@@ -1,7 +1,17 @@
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 <h1>QRCODE CRIAR</h1>
 
 <h2>INFORMAÇÕES</h2>
-<form>
+<form method="post">
     <label for="valor">Valor:</label>
     <input type="number" name="valor" id="valor" required>
     <br>

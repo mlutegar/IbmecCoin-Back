@@ -1,5 +1,5 @@
 from flaskr.utils.db import get_db
-from flaskr.entities.qr_code import QrCode
+from flaskr.entities.qrcode import QrCode
 
 
 class QrCodeDAO:
@@ -26,7 +26,7 @@ class QrCodeDAO:
         :param qtd_usos: quantidade de usos do token
         :return: True se o token foi inserido com sucesso, False caso contrário
         """
-        qrcode = QrCode(self.__get_last_id_lista_qrcode() + 1, token, valor, qtd_usos, validade_data)
+        qrcode = QrCode(self.__get_last_id_lista_qrcode() + 1, token, valor, validade_data, qtd_usos)
 
         db = get_db()
         try:

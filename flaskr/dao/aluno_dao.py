@@ -11,7 +11,7 @@ class AlunoDAO(UserDAO):
     - insert_aluno(matricula, senha, tipo, email): insere um aluno no banco de dados
     - get_aluno_by_matricula(matricula): seleciona um aluno no banco de dados
     - get_all(): seleciona todos os alunos no banco de dados
-    - get_all_aluno_by_grupo_id(grupo_id): seleciona todos os alunos no banco de dados de um grupo específico
+    - get_all_aluno_by_id_grupo(id_grupo): seleciona todos os alunos no banco de dados de um grupo específico
     - update_aluno(matricula, **kwargs): atualiza os campos de um aluno no banco de dados com base nos argumentos fornecidos
     """
 
@@ -60,7 +60,7 @@ class AlunoDAO(UserDAO):
                 user.senha,
                 user.nome,
                 user.email,
-                resultado['grupo_id'],
+                resultado['id_grupo'],
                 resultado['saldo'],
                 resultado['id_turma']
             )
@@ -89,7 +89,7 @@ class AlunoDAO(UserDAO):
                 user.senha,
                 user.nome,
                 user.email,
-                row['grupo_id'],
+                row['id_grupo'],
                 row['saldo'],
                 row['id_turma']
             )
@@ -97,14 +97,14 @@ class AlunoDAO(UserDAO):
 
         return alunos
 
-    def get_all_aluno_by_id_grupo(self, grupo_id):
+    def get_all_aluno_by_id_grupo(self, id_grupo):
         """
         Seleciona todos os alunos no banco de dados de um grupo específico.
         :return: Lista de objetos do tipo Aluno, ou None se não houver alunos
         """
         db = get_db()
         resultado = db.execute(
-            "SELECT * FROM aluno WHERE grupo_id = ?", (grupo_id,)
+            "SELECT * FROM aluno WHERE id_grupo = ?", (id_grupo,)
         ).fetchall()
 
         if not resultado:
@@ -119,7 +119,7 @@ class AlunoDAO(UserDAO):
                 user.senha,
                 user.nome,
                 user.email,
-                row['grupo_id'],
+                row['id_grupo'],
                 row['saldo'],
                 row['id_turma']
             )
@@ -149,7 +149,7 @@ class AlunoDAO(UserDAO):
                 user.senha,
                 user.nome,
                 user.email,
-                row['grupo_id'],
+                row['id_grupo'],
                 row['saldo'],
                 row['id_turma']
             )
@@ -171,8 +171,8 @@ class AlunoDAO(UserDAO):
         db = get_db()
         try:
             db.execute(
-                "UPDATE aluno SET grupo_id = ?, saldo = ?, id_turma = ? WHERE matricula = ?",
-                (aluno.grupo_id, aluno.saldo, aluno.id_turma, aluno.matricula)
+                "UPDATE aluno SET id_grupo = ?, saldo = ?, id_turma = ? WHERE matricula = ?",
+                (aluno.id_grupo, aluno.saldo, aluno.id_turma, aluno.matricula)
             )
             db.commit()
         except db.IntegrityError:
@@ -227,6 +227,24 @@ class AlunoDAO(UserDAO):
             db.execute(
                 "UPDATE aluno SET id_turma = ? WHERE matricula = ?",
                 (id_turma, matricula)
+            )
+            db.commit()
+        except db.IntegrityError:
+            return False
+        return True
+
+    def aceitar_convite(self, id_grupo, convidado_matricula):
+        """
+        Aceita um convite no banco de dados.
+        :param id_grupo: ID do grupo
+        :param convidado_matricula: Matrícula do convidado
+        :return: Retorna True se o convite foi aceito com sucesso, False caso contrário.
+        """
+        db = get_db()
+        try:
+            db.execute(
+                "UPDATE aluno SET id_grupo = ? WHERE matricula = ?",
+                (id_grupo, convidado_matricula),
             )
             db.commit()
         except db.IntegrityError:

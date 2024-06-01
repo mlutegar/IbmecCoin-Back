@@ -66,14 +66,13 @@ class TransacaoDAO:
         try:
             db.execute(
                 "INSERT INTO transacao (emissor_id, receptor_id, valor, data) VALUES (?, ?, ?, ?)",
-                (transacao.valor, aluno_matricula, 'loja', transacao.data),
+                (aluno.matricula, 'loja', transacao.valor, transacao.data),
             )
             db.commit()
         except db.IntegrityError:
             return False
 
         aluno.saldo -= item.valor
-
         AlunoDAO().update_aluno(aluno)
         return True
 

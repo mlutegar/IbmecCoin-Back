@@ -1,16 +1,29 @@
 <h1>CONVITES</h1>
 
+<h2>Lista de convites</h2>
+{% if not convites %}
+    <p>Não há convites pendentes</p>
+{% else %}
+<table>
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Grupo</th>
+            <th>Convidado</th>
+        </tr>
+    </thead>
+    <tbody>
 {% for convite in convites %}
-    <p>{{ convite.id_convite }} - {{ convite.grupo_id }} - {{ convite.convidado_matricula }}</p>
-    <a href="{{url_for('grupo.aceitar', convite=convite.id_convite)}}">Aceitar</a>
+    <tr>
+        <td>{{ convite.id_convite }}</td>
+        <td>{{ convite.id_grupo }}</td>
+        <td>{{ convite.convidado_matricula }}</td>
+        <td><a href="{{url_for('grupo.aceitar', id_convite=convite.id_convite)}}">Aceitar</a></td>
+    </tr>
 {% endfor %}
+    </tbody>
+</table>
+{% endif %}
 
-{#
-CREATE TABLE convite (
-    id_convite INTEGER PRIMARY KEY AUTOINCREMENT,
-    grupo_id INTEGER NOT NULL,
-    convidado_matricula INTEGER NOT NULL,
-    FOREIGN KEY (grupo_id) REFERENCES grupo (id_grupo),
-    FOREIGN KEY (convidado_matricula) REFERENCES aluno (matricula)
-);
-#}
+<h2>VOLTAR MENU</h2>
+<a href="{{url_for('index')}}">Menu</a>

@@ -18,13 +18,15 @@ def criar():
     """
     if request.method == 'POST':
         valor = request.form['valor']
-        validade = request.form['validade']
+        validade = request.form['validade_data']
+        validade = datetime.strptime(validade, '%Y-%m-%d')
         qtd_usos = request.form['qtd_usos']
 
         tk = QrCodeDAO()
         token = secrets.token_urlsafe()
 
         if tk.insert_qrcode(token, int(valor), validade, int(qtd_usos)):
+            flash("Token criado com sucesso")
             return redirect(url_for('qrcode.foto', token=token))
         else:
             flash("Erro ao criar o token")

@@ -7,18 +7,18 @@ class ConviteDAO:
     Classe responsável por realizar a comunicação com o banco de dados para a entidade Convite.
     """
     @staticmethod
-    def insert_convite(grupo_id, convidado_matricula):
+    def insert_convite(id_grupo, convidado_matricula):
         """
         Insere um convite no banco de dados.
-        :param grupo_id: O id do grupo que o convite pertence.
+        :param id_grupo: O id do grupo que o convite pertence.
         :param convidado_matricula: A matrícula do usuário convidado.
         :return: Retorna True se o convite foi inserido com sucesso, False caso contrário.
         """
         db = get_db()
         try:
             db.execute(
-                "INSERT INTO convite (grupo_id, convidado_matricula) VALUES (?, ?)",
-                (grupo_id, convidado_matricula),
+                "INSERT INTO convite (id_grupo, convidado_matricula) VALUES (?, ?)",
+                (id_grupo, convidado_matricula),
             )
             db.commit()
         except db.IntegrityError:
@@ -36,7 +36,7 @@ class ConviteDAO:
         query = "SELECT * FROM convite WHERE id_convite = ?"
         result = db.execute(query, (id_convite,)).fetchone()
         if result:
-            convite = Convite(result['id_convite'], result['grupo_id'], result['convidado_matricula'])
+            convite = Convite(result['id_convite'], result['id_grupo'], result['convidado_matricula'])
             return convite
         return None
 
@@ -53,24 +53,24 @@ class ConviteDAO:
         if result:
             lista = []
             for convite in result:
-                lista.append(Convite(convite['id_convite'], convite['grupo_id'], convite['convidado_matricula']))
+                lista.append(Convite(convite['id_convite'], convite['id_grupo'], convite['convidado_matricula']))
             return lista
         return None
 
     @staticmethod
-    def get_all_convites_by_grupo_id(grupo_id):
+    def get_all_convites_by_id_grupo(id_grupo):
         """
         Busca todos os convites de um grupo no banco de dados.
-        :param grupo_id: O id do grupo.
+        :param id_grupo: O id do grupo.
         :return: Retorna uma lista de objetos do tipo Convite se os convites foram encontrados, None caso contrário.
         """
         db = get_db()
-        query = "SELECT * FROM convite WHERE grupo_id = ?"
-        result = db.execute(query, (grupo_id,)).fetchall()
+        query = "SELECT * FROM convite WHERE id_grupo = ?"
+        result = db.execute(query, (id_grupo,)).fetchall()
         if result:
             lista = []
             for convite in result:
-                lista.append(Convite(convite['id_convite'], convite['grupo_id'], convite['convidado_matricula']))
+                lista.append(Convite(convite['id_convite'], convite['id_grupo'], convite['convidado_matricula']))
             return lista
         return None
 
@@ -87,7 +87,7 @@ class ConviteDAO:
         if result:
             lista = []
             for convite in result:
-                lista.append(Convite(convite['id_convite'], convite['grupo_id'], convite['convidado_matricula']))
+                lista.append(Convite(convite['id_convite'], convite['id_grupo'], convite['convidado_matricula']))
             return lista
         return None
 
@@ -108,24 +108,4 @@ class ConviteDAO:
             db.commit()
         except db.IntegrityError:
             return False
-        return True
-
-    def aceitar_convite(self, id_convite):
-        """
-        Aceita um convite no banco de dados.
-        :param id_convite: O id do convite a ser aceito.
-        :return: Retorna True se o convite foi aceito com sucesso, False caso contrário.
-        """
-        db = get_db()
-        try:
-            convite = ConviteDAO.get_convite(id_convite)
-            db.execute(
-                "UPDATE aluno SET grupo_id = ? WHERE matricula = ?",
-                (convite.grupo_id, convite.convidado_matricula),
-            )
-            db.commit()
-        except db.IntegrityError:
-            return False
-
-        self.delete_convite(id_convite)
         return True

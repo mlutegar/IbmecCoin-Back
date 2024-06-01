@@ -19,12 +19,12 @@ CREATE TABLE user (
 
 CREATE TABLE aluno (
     matricula INTEGER NOT NULL,
-    grupo_id INTEGER,
+    id_grupo INTEGER,
     saldo INTEGER NOT NULL DEFAULT 0,
     id_turma INTEGER,
     FOREIGN KEY (matricula) REFERENCES user (matricula),
     FOREIGN KEY (id_turma) REFERENCES turma (id_turma),
-    FOREIGN KEY (grupo_id) REFERENCES grupo (id_grupo)
+    FOREIGN KEY (id_grupo) REFERENCES grupo (id_grupo)
 );
 
 CREATE TABLE professor (
@@ -70,9 +70,9 @@ CREATE TABLE grupo (
 
 CREATE TABLE convite (
     id_convite INTEGER PRIMARY KEY AUTOINCREMENT,
-    grupo_id INTEGER NOT NULL,
+    id_grupo INTEGER NOT NULL,
     convidado_matricula INTEGER NOT NULL,
-    FOREIGN KEY (grupo_id) REFERENCES grupo (id_grupo),
+    FOREIGN KEY (id_grupo) REFERENCES grupo (id_grupo),
     FOREIGN KEY (convidado_matricula) REFERENCES aluno (matricula)
 );
 
@@ -98,16 +98,17 @@ INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (2, 'scrypt:32768:
 INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (3, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'professor', 'c', 'c@c');
 INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (4, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'aluno', 'd', 'd@d');
 
-INSERT INTO aluno (matricula, grupo_id, saldo, id_turma) VALUES (1, 1, 100, 1);
-INSERT INTO aluno (matricula, grupo_id, saldo, id_turma) VALUES (2, 1, 100, 1);
-INSERT INTO aluno (matricula, grupo_id, saldo, id_turma) VALUES (4, null, 100, null);
+INSERT INTO aluno (matricula, id_grupo, saldo, id_turma) VALUES (1, 1, 100, 1);
+INSERT INTO aluno (matricula, id_grupo, saldo, id_turma) VALUES (2, 1, 100, 1);
+INSERT INTO aluno (matricula, id_grupo, saldo, id_turma) VALUES (4, null, 100, null);
 INSERT INTO professor (matricula) VALUES (3);
 
 INSERT INTO turma (nome, professor_matricula) VALUES ('turma1', 3);
 
 INSERT INTO grupo (nome, descricao, criador_matricula) VALUES ('grupo1', 'descricao', 1);
 
-INSERT INTO convite (grupo_id, convidado_matricula) VALUES (1, 2);
+INSERT INTO convite (id_grupo, convidado_matricula) VALUES (1, 2);
+INSERT INTO convite (id_grupo, convidado_matricula) VALUES (1, 4);
 
 INSERT INTO item_loja (nome, valor) VALUES ('item1', 10);
 INSERT INTO item_loja (nome, valor) VALUES ('item2', 20);
@@ -116,6 +117,7 @@ INSERT INTO item_loja (nome, valor) VALUES ('item3', 30);
 INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (1, 2, 10);
 INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (2, 1, 20);
 INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (1, 2, 30);
+INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (2, 4, 120);
 
 INSERT INTO item_comprado (item_id, aluno_id) VALUES (1, 1);
 INSERT INTO item_comprado (item_id, aluno_id) VALUES (2, 1);

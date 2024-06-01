@@ -16,7 +16,7 @@ Matricula: {{ aluno.matricula }} <br>
 Saldo: {{ aluno.saldo }} <br>
 Turma: {{ aluno.id_turma }} <br>
 Tipo: {{ aluno.tipo }} <br>
-Grupo: {{ aluno.grupo_id }}
+Grupo: {{ aluno.id_grupo }}
 
 <h2>TURMA</h2>
 {% if not aluno.id_turma %}
@@ -26,7 +26,7 @@ Grupo: {{ aluno.grupo_id }}
 {% endif %}
 
 <h2>GRUPO</h2>
-{% if not aluno.grupo_id %}
+{% if not aluno.id_grupo %}
     <a href="{{ url_for('grupo.criar') }}">Criar grupo</a>
     <a href="{{ url_for('grupo.convites') }}">Ver convites</a>
 {% else %}
