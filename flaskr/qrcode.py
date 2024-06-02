@@ -1,13 +1,15 @@
 import secrets
 import segno
-from datetime import datetime, timedelta
-from flask import Blueprint, flash, redirect, render_template, request, url_for, session
+import io
+import imageio
 
+from datetime import datetime
 from flaskr.dao.aluno_dao import AlunoDAO
+from flask import Blueprint, flash, redirect, render_template, request, url_for, session
+from pyzbar.pyzbar import decode
 from flaskr.dao.qrcode_dao import QrCodeDAO
 
 bp = Blueprint('qrcode', __name__, url_prefix='/qrcode')
-
 
 @bp.route('/criar', methods=('GET', 'POST'))
 def criar():
@@ -34,7 +36,6 @@ def criar():
 
     return render_template('qrcode/criar.html')
 
-
 @bp.route('/foto/<token>', methods=('GET', 'POST'))
 def foto(token):
     """
@@ -54,19 +55,42 @@ def foto(token):
 @bp.route('/leitor', methods=('GET', 'POST'))
 def leitor():
     """
-    Função que exibe a página do leitor de qrcode, permite que o usuário adiciona o token manualmente ou escaneie o
+    Função que exibe a página do leitor de qrcode, permite que o usuário adicione o token manualmente ou escaneie o
     qrcode que resgatará o token e verificará se o token é válido e caso for, adicionará saldo na conta do usuário
     aluno
     :return: renderiza a página do leitor de qrcode
     """
     if request.method == 'POST':
-        token = request.form['token']
-        tk = QrCodeDAO()
-        if tk.get_qrcode(token) is not None:
-            return redirect(url_for("qrcode.validar", token=token))
-        else:
-            flash("Token inválido")
-            return redirect(url_for("qrcode.leitor"))
+        form_id = request.form.get('form_id')
+
+        if form_id == 'validate_qr':
+            token = request.form.get('token')
+            tk = QrCodeDAO()
+            if tk.get_qrcode(token) is not None:
+                return redirect(url_for("qrcode.validar", token=token))
+            else:
+                flash("Token inválido")
+                return redirect(url_for("qrcode.leitor"))
+
+        elif form_id == 'upload_file':
+            file = request.files.get('file')
+            if file and file.filename != '':
+                # Carregar a imagem em memória usando imageio
+                image = imageio.v2.imread(io.BytesIO(file.read()))
+                # Decodificar o QR code
+                decoded_objects = decode(image)
+                if decoded_objects:
+                    token = decoded_objects[0].data.decode('utf-8')
+                    tk = QrCodeDAO()
+                    if tk.get_qrcode(token) is not None:
+                        return redirect(url_for("qrcode.validar", token=token))
+                    else:
+                        flash("Token inválido")
+                        return redirect(url_for("qrcode.leitor"))
+                else:
+                    flash("Nenhum QR code encontrado na imagem")
+                    return redirect(url_for("qrcode.leitor"))
+
     return render_template('qrcode/leitor.html')
 
 
@@ -90,7 +114,8 @@ def validar(token):
     if qrcode.validade_data > datetime.now():
         AlunoDAO().update_aumentar_saldo(aluno.matricula, qrcode.valor)
         QrCodeDAO().update_diminuir_qtd_usos(qrcode.token)
-        return redirect(url_for("aluno.aluno", token=token))
+        flash("Token validado com sucesso")
+        return redirect(url_for("aluno.aluno"))
     else:
         flash("Token vencido")
         return redirect(url_for("qrcode.leitor"))

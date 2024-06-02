@@ -20,6 +20,10 @@ def loja():
     matricula = session['matricula']
 
     user = UserDAO().get_user(matricula)
+
+    if user.tipo == 'aluno':
+        user = AlunoDAO().get_aluno(matricula)
+
     lista_itens = LojaDAO().get_all_items()
 
     if user is None or lista_itens is None:
@@ -39,6 +43,7 @@ def loja():
             return render_template('loja/loja.html', itens=LojaDAO().get_all_items(), user=user)
 
     return render_template('loja/loja.html', itens=lista_itens, user=user)
+
 
 @bp.route('/item/<id_item>', methods=('GET', 'POST'))
 def item(id_item):
@@ -62,25 +67,31 @@ def comprar(id_item):
     :param id_item: id do item
     :return: Redireciona para a página da loja
     """
+    if 'matricula' not in session:
+        flash('Faça login para comprar')
+        return render_template('auth/login.html')
     matricula = session['matricula']
 
-    aluno = AlunoDAO().get_aluno(matricula)
+    user = AlunoDAO().get_aluno(matricula)
     item_obj = LojaDAO().get_item(id_item)
 
-    if aluno is None or item_obj is None:
+    if user is None or item_obj is None:
         flash('Erro ao realizar a compra')
-        return render_template('loja/loja.html', itens=LojaDAO().get_all_items(), aluno=aluno)
+        return render_template('loja/loja.html', itens=LojaDAO().get_all_items(), user=user)
 
-    if aluno.saldo < item_obj.valor:
+    if user.saldo < item_obj.valor:
         flash('Saldo insuficiente')
-        return render_template('loja/loja.html', itens=LojaDAO().get_all_items(), aluno=aluno)
+        return render_template('loja/loja.html', itens=LojaDAO().get_all_items(), user=user)
 
-    if ItemCompradoDAO().buy_item(item_obj.id_item, aluno.matricula):
-        if TransacaoDAO().insert_transacao_loja(aluno.matricula, item_obj.id_item):
+    if ItemCompradoDAO().buy_item(item_obj.id_item, user.matricula):
+        if TransacaoDAO().insert_transacao_loja(user.matricula, item_obj.id_item):
+            loja_atualizada = LojaDAO().get_all_items()
+            user_atualizado = AlunoDAO().get_aluno(matricula)
+
             flash('Item comprado com sucesso!')
-            return render_template('loja/loja.html', itens=LojaDAO().get_all_items(), aluno=aluno)
+            return render_template('loja/loja.html', itens=loja_atualizada, user=user_atualizado)
         else:
             flash('Erro no no processo de salvar transação/buy item')
-            return render_template('loja/loja.html', itens=LojaDAO().get_all_items(), aluno=aluno)
+            return render_template('loja/loja.html', itens=LojaDAO().get_all_items(), user=user)
 
     return render_template('loja/comprar.html')

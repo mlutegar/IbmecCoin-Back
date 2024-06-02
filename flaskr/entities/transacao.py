@@ -4,3 +4,11 @@ class Transacao:
         self.receptor_id = receptor_id
         self.valor = valor
         self.data = data
+
+    def to_dict(self):
+        return {
+            "emissor_id": self.emissor_id,
+            "receptor_id": self.receptor_id,
+            "valor": self.valor,
+            "data": self.data
+        }

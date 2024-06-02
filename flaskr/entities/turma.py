@@ -2,6 +2,15 @@ from flaskr.entities.professor import Professor
 
 
 class Turma:
+    """
+    Entidade Turma
+
+    Atributos:
+    - id_turma: int
+    - nome: str
+    - professor: Professor
+    - turma: list[Aluno]
+    """
     def __init__(self, id_turma: int, nome: str, professor: Professor, alunos: list):
         self.id_turma = id_turma
         self.nome = nome
@@ -13,5 +22,10 @@ class Turma:
             return 0
         return len(self.turma)
 
-    def __str__(self):
-        return f"Turma {self.nome} - Professor {self.professor.nome} - Alunos {self.get_quantidade_turma()}"
+    def to_dict(self):
+        return {
+            'id_turma': self.id_turma,
+            'nome': self.nome,
+            'professor': self.professor.to_dict(),
+            'turma': [aluno.to_dict() for aluno in self.turma]
+        }

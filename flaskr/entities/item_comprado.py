@@ -12,3 +12,10 @@ class ItemComprado:
         self.item = id_item
         self.aluno = aluno_matricula
         self.data_compra = datetime.now()
+
+    def to_dict(self):
+        return {
+            "item": self.item,
+            "aluno": self.aluno,
+            "data_compra": self.data_compra
+        }

@@ -31,7 +31,7 @@ class TurmaDAO:
                 return turma
         return None
 
-    def get_turma_by_nome(self, nome: str):
+    def get_turma_by_nome(self, nome: str) -> Turma:
         for turma in self.lista_turmas:
             if turma.nome == nome:
                 return turma

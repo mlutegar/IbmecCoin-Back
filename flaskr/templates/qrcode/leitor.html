@@ -11,6 +11,16 @@
 <h1>Leitor de QRCode</h1>
 <p>Insira o código do QRCode ou scannear o QRCode</p>
 <form method="post">
+    <input type="hidden" name="form_id" value="validate_qr">
     <input type="text" name="token" placeholder="Código do QRCode">
     <button type="submit">Validar</button>
 </form>
+
+<form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="form_id" value="upload_file">
+    <input type="file" name="file" accept="image/*">
+    <button type="submit">Enviar</button>
+</form>
+
+<h2>VOLTAR</h2>
+<a href="{{ url_for('index') }}">Voltar</a>

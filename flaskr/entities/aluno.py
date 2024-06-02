@@ -11,14 +11,6 @@ class Aluno(User):
     def get_id_grupo(self):
         return self.id_grupo
 
-    def __str__(self):
-        return (f"Aluno {self.matricula} {self.nome} {self.email} {self.senha} {self.tipo} "
-                f"{self.id_grupo} {self.saldo} {self.id_turma}")
-
-    def __repr__(self):
-        return (f"Aluno {self.matricula} {self.nome} {self.email} {self.senha} {self.tipo} "
-                f"{self.id_grupo} {self.saldo} {self.id_turma}")
-
     def to_dict(self):
         user_dict = super().to_dict()
         user_dict.update({

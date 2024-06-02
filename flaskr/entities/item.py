@@ -18,25 +18,3 @@ class Item:
             'nome': self.nome,
             'valor': self.valor
         }
-
-    @staticmethod
-    def from_dict(dict):
-        return Item(
-            id_item=dict['id_item'],
-            nome=dict['nome'],
-            valor=dict['valor']
-        )
-
-    @staticmethod
-    def from_tuple(tuple):
-        return Item(
-            id_item=tuple[0],
-            nome=tuple[1],
-            valor=tuple[2]
-        )
-
-    def __str__(self):
-        return f'Item({self.id_item}, {self.nome}, {self.valor})'
-
-    def __repr__(self):
-        return self.__str__()

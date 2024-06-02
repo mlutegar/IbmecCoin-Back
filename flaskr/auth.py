@@ -1,5 +1,5 @@
 import functools
-from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 from flaskr.dao.aluno_dao import AlunoDAO
 from flaskr.dao.professor_dao import ProfessorDAO
@@ -8,8 +8,27 @@ from flaskr.utils.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
+def authenticate(username, password):
+    user = UserDAO().get_user(username)
+    if user and check_password_hash(user.senha, password):
+        return user
+    return None
 
-@bp.route('/registro', methods=('GET', 'POST'))
+@bp.route('/loginTeste', methods=['POST'])
+def loginTeste():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    print(username, password)
+
+    user = authenticate(username, password)
+    if user:
+        return jsonify({'user': user.to_dict_without_senha()}), 200
+    return jsonify({'message': 'Invalid credentials'}), 401
+
+
+@bp.route('/registro', methods=['POST'])
 def registro():
     """
     Rota para registrar um usuário no sistema
@@ -160,6 +179,7 @@ def login_required(view):
     :param view: Função que será verificada
     :return: Função que verifica se o usuário está logado
     """
+
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:

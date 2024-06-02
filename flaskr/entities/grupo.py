@@ -22,26 +22,16 @@ class Grupo:
         self.criador_id = matricula
         self.membros = membros
 
+    def to_dict(self):
+        """
+        Método que transforma o objeto em um dicionário
 
-    def add_member(self, aluno):
+        :return: dicionário com os atributos do objeto
         """
-        Adiciona um membro ao grupo
-        :param aluno: objeto do tipo Aluno
-        """
-        self.membros.append(aluno)
-
-    def get_group_descricao(self):
-        """
-        Retorna a descrição do grupo
-
-        :return: descrição do grupo
-        """
-        return self.descricao
-
-    def get_group_members(self):
-        """
-        Retorna os membros do grupo
-
-        :return: lista de membros do grupo
-        """
-        return self.membros
+        return {
+            "id_grupo": self.id_grupo,
+            "nome": self.nome,
+            "descricao": self.descricao,
+            "criador_id": self.criador_id,
+            "membros": self.membros
+        }
