@@ -10,6 +10,11 @@
 
 <h1>LOJA - ITENS</h1>
 
+{% if user.tipo == "aluno" %}
+<h2>SALDO</h2>
+<p>Seu saldo é de IbmecCoins {{user.saldo}}</p>
+{% endif %}
+
 <h2>TABELA</h2>
 <table>
     <tr>

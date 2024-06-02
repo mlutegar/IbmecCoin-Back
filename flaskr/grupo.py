@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, session
+from flask import Blueprint, request, jsonify
 from flaskr.dao.aluno_dao import AlunoDAO
 from flaskr.dao.convite_dao import ConviteDAO
 from flaskr.dao.grupo_dao import GrupoDAO
@@ -7,169 +7,140 @@ from flaskr.dao.transacao_dao import TransacaoDAO
 bp = Blueprint('grupo', __name__, url_prefix='/grupo')
 
 
-@bp.route('/informacao', methods=('GET', 'POST'))
+@bp.route('/informacao', methods=['POST'])
 def informacao():
     """
-    Função que exibe a página de informações do grupo do aluno.
+    Função que exibe as informações do grupo do aluno.
+    curl -X POST http://localhost:5000/grupo/informacao -H "Content-Type: application/json" -d "{\"matricula\": \"1\"}"
     """
-    matricula = session['matricula']
-    if matricula is None:
-        return render_template('index.html')
+    data = request.json
+    matricula = data['matricula']
 
-    alunoDao = AlunoDAO()
-    aluno = alunoDao.get_aluno(matricula)
-    id_grupo = aluno.get_id_grupo()
-    grupoDao = GrupoDAO()
-    grupo = grupoDao.get_grupo_by_id(id_grupo)
+    aluno = AlunoDAO().get_aluno(matricula)
+    id_grupo = aluno.id_grupo
+    grupo = GrupoDAO().get_grupo_by_id(id_grupo)
 
-    return render_template('grupo/informacao.html', grupo=grupo, aluno=aluno)
+    if aluno is None or grupo is None:
+        return jsonify({'message': 'Erro ao carregar informações do grupo'}), 400
+
+    return jsonify({'grupo': grupo.__dict__(), 'aluno': aluno.__dict__()}), 200
 
 
-@bp.route('/criar', methods=('GET', 'POST'))
+@bp.route('/criar', methods=['POST'])
 def criar():
     """
-    Função que exibe a página de criação de grupo.
+    Função que cria um grupo.
+    curl -X POST http://localhost:5000/grupo/criar -H "Content-Type: application/json" -d "{\"matricula\": \"1\", \"nome\": \"Grupo 1\", \"descricao\": \"Descricao do grupo\"}"
     """
-    if 'matricula' not in session:
-        return render_template('index.html')
-    matricula = session['matricula']
+    data = request.json
+    matricula = data['matricula']
+    nome = data['nome']
+    descricao = data['descricao']
 
     aluno = AlunoDAO().get_aluno(matricula)
     grupoDao = GrupoDAO()
 
-    if request.method == 'POST':
-        nome = request.form['nome']
-        descricao = request.form['descricao']
+    if not grupoDao.insert_grupo(nome, 5, descricao, aluno.matricula):
+        return jsonify({'message': 'Grupo ja existe'}), 400
 
-        if not grupoDao.insert_grupo(nome, 5, descricao, aluno.matricula):
-            error = 'Grupo já existe.'
-            flash(error)
-            return render_template('grupo/criar.html')
-        else:
-            flash('Grupo criado com sucesso')
-            aluno.id_grupo = grupoDao.get_grupo_by_matricula(aluno.matricula).id_grupo
+    aluno.id_grupo = grupoDao.get_grupo_by_matricula(aluno.matricula).id_grupo
+    if not AlunoDAO().update_aluno(aluno):
+        return jsonify({'message': 'Erro ao atualizar aluno'}), 400
 
-            if not AlunoDAO().update_aluno(aluno):
-                flash('Erro ao atualizar aluno')
-                return render_template('grupo/criar.html')
-
-            return render_template(
-                'grupo/informacao.html',
-                grupo=grupoDao.get_grupo_by_matricula(aluno.matricula),
-                aluno=aluno
-            )
-
-    return render_template('grupo/criar.html')
+    return jsonify(
+        {'message': 'Grupo criado com sucesso', 'grupo': grupoDao.get_grupo_by_matricula(aluno.matricula).__dict__(),
+         'aluno': aluno.__dict__()}), 200
 
 
-@bp.route('/transferir/<destinatario>', methods=('GET', 'POST'))
-def transferir(destinatario):
+@bp.route('/transferir', methods=['POST'])
+def transferir():
     """
-    Função que exibe a página de transferência de IbmecCoins.
-    Essa função também é responsável por processar o post do formulário de transferência de IbmecCoins.
+    Função que realiza a transferência de IbmecCoins.
+    curl -X POST http://localhost:5000/grupo/transferir -H "Content-Type: application/json" -d "{\"matricula\": \"1\", \"usuario\": \"2\", \"quantidade\": \"10\"}"
     """
-    if 'matricula' not in session:
-        return render_template('index.html')
+    data = request.json
+    remetente_matricula = data['matricula']
+    destinatario_matricula = data['usuario']
+    quantidade = int(data['quantidade'])
 
-    matricula = session['matricula']
-    remetente = AlunoDAO().get_aluno(matricula)
+    remetente = AlunoDAO().get_aluno(remetente_matricula)
+    destinatario = AlunoDAO().get_aluno(destinatario_matricula)
 
-    if request.method == 'POST':
-        destinatario = request.form['usuario']
-        quantidade = request.form['quantidade']
+    if destinatario is None or quantidade == "":
+        return jsonify({'message': 'Usuario nao encontrado'}), 400
 
-        destinatario = AlunoDAO().get_aluno(destinatario)
-        quantidade = int(quantidade)
+    if not TransacaoDAO().insert_transacao(remetente.matricula, destinatario.matricula, quantidade):
+        return jsonify({'message': 'Nao foi possivel processar a transferencia'}), 400
 
-        if destinatario is None or quantidade == "":
-            flash('Usuário não encontrado')
-            return render_template('grupo/transferir.html')
-
-        if not TransacaoDAO().insert_transacao(remetente.matricula, destinatario.matricula, quantidade):
-            flash('Não foi possível processar a transferência')
-            return render_template('grupo/transferir.html')
-
-        flash('Transferência realizada com sucesso')
-        return render_template(
-            'grupo/informacao.html',
-            aluno=remetente,
-            grupo=GrupoDAO().get_grupo_by_id(remetente.get_id_grupo())
-        )
-
-    return render_template('grupo/transferir.html', destinatario=destinatario)
+    return jsonify({'message': 'Transferencia realizada com sucesso', 'aluno': remetente.__dict__(),
+                    'grupo': GrupoDAO().get_grupo_by_id(remetente.get_id_grupo()).__dict__()}), 200
 
 
-@bp.route('/convidar', methods=('GET', 'POST'))
+@bp.route('/convidar', methods=['POST'])
 def convidar():
     """
-    Função que exibe a página de convite de alunos para o grupo.
+    Função que convida um aluno para o grupo.
+    curl -X POST http://localhost:5000/grupo/convidar -H "Content-Type: application/json" -d "{\"matricula\": \"1\", \"destinatario\": \"2\"}"
     """
-    if 'matricula' not in session:
-        return render_template('index.html')
-    matricula = session['matricula']
+    data = request.json
+    remetente_matricula = data['matricula']
+    destinatario_matricula = data['destinatario']
 
     alunoDao = AlunoDAO()
     grupoDao = GrupoDAO()
     conviteDao = ConviteDAO()
-    remetente = alunoDao.get_aluno(matricula)
+    remetente = alunoDao.get_aluno(remetente_matricula)
     grupo = grupoDao.get_grupo_by_id(remetente.get_id_grupo())
+    destinatario = alunoDao.get_aluno(destinatario_matricula)
 
-    if request.method == 'POST':
-        destinatario = request.form['matricula']
-        destinatario = alunoDao.get_aluno(destinatario)
+    if destinatario is None:
+        return jsonify({'message': 'Usuario nao encontrado'}), 400
 
-        if destinatario is None:
-            flash('Usuário não encontrado')
-            return render_template('grupo/convidar.html')
+    if not conviteDao.insert_convite(grupo.id_grupo, destinatario.matricula):
+        return jsonify({'message': 'Convite nao enviado'}), 400
 
-        if not conviteDao.insert_convite(grupo.id_grupo, destinatario.matricula):
-            flash('Convite não enviado')
-            return render_template('grupo/convidar.html')
-
-        flash('Convite enviado com sucesso')
-        return render_template('grupo/informacao.html', grupo=grupo, aluno=remetente)
-
-    return render_template('grupo/convidar.html')
+    return jsonify(
+        {'message': 'Convite enviado com sucesso', 'grupo': grupo.__dict__(), 'aluno': remetente.__dict__()}), 200
 
 
-@bp.route('/convites', methods=('GET', 'POST'))
+@bp.route('/convites', methods=['POST'])
 def convites():
     """
-    Função que exibe a página de convites recebidos.
+    Função que exibe os convites recebidos.
+    curl -X POST http://localhost:5000/grupo/convites -H "Content-Type: application/json" -d "{\"matricula\": \"1\"}"
     """
-    if 'matricula' not in session:
-        return render_template('index.html')
-    matricula = session['matricula']
-    
-    aluno = AlunoDAO().get_user(matricula)
+    data = request.json
+    matricula = data['matricula']
+
+    aluno = AlunoDAO().get_aluno(matricula)
     convites_lista = ConviteDAO().get_all_convites_by_matricula(aluno.matricula)
 
-    return render_template('grupo/convites.html', convites=convites_lista, aluno=aluno)
+    return jsonify({'convites': [convite.__dict__() for convite in convites_lista], 'aluno': aluno.__dict__()}), 200
 
 
-@bp.route('/aceitar/<id_convite>', methods=('GET', 'POST'))
-def aceitar(id_convite):
+@bp.route('/aceitar', methods=['POST'])
+def aceitar():
     """
     Função que aceita um convite de um grupo.
+    curl -X POST http://localhost:5000/grupo/aceitar -H "Content-Type: application/json" -d "{\"matricula\": \"1\", \"id_convite\": \"123\"}"
     """
-    if 'matricula' not in session:
-        return render_template('index.html')
-    matricula = session['matricula']
+    data = request.json
+    matricula = data['matricula']
+    id_convite = data['id_convite']
 
     user = AlunoDAO().get_aluno(matricula)
     convite = ConviteDAO().get_convite(id_convite)
 
     if convite is None:
-        flash('Convite não encontrado')
-        return render_template('grupo/convites.html')
+        return jsonify({'message': 'Convite nao encontrado'}), 400
 
     if AlunoDAO().aceitar_convite(convite.id_grupo, convite.convidado_matricula):
-        flash('Convite aceito com sucesso')
         grupo = GrupoDAO().get_grupo_by_id(convite.id_grupo)
         user.id_grupo = grupo.id_grupo
         AlunoDAO().update_aluno(user)
         ConviteDAO().delete_convite(convite.id_convite)
 
-        return render_template('grupo/informacao.html', grupo=grupo, aluno=user)
+        return jsonify(
+            {'message': 'Convite aceito com sucesso', 'grupo': grupo.__dict__(), 'aluno': user.__dict__()}), 200
 
-    return render_template('grupo/aceitar.html', id_convite=id_convite)
+    return jsonify({'message': 'Erro ao aceitar convite'}), 400

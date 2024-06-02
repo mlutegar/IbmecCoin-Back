@@ -215,7 +215,7 @@ class AlunoDAO(UserDAO):
             return False
         return True
 
-    def update_aluno_turma(self, matricula, id_turma):
+    def update_aluno_turma(self, matricula: int, id_turma: int):
         """
         Atualiza a turma de um aluno no banco de dados.
         :param matricula: Matrícula do aluno

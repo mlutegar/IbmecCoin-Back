@@ -6,13 +6,7 @@ class User:
         self.nome = nome
         self.email = email
 
-    def __str__(self):
-        return f"User {self.matricula} {self.nome} {self.email} {self.senha} {self.tipo}"
-
-    def __repr__(self):
-        return f"User {self.matricula} {self.nome} {self.email} {self.senha} {self.tipo}"
-
-    def to_dict(self):
+    def __dict__(self):
         return {
             "matricula": self.matricula,
             "senha": self.senha,
@@ -28,7 +22,3 @@ class User:
             "nome": self.nome,
             "email": self.email
         }
-
-    def update_senha(self, senha):
-        self.senha = senha
-        return self

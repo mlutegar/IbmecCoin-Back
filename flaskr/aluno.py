@@ -1,49 +1,37 @@
-from flask import Blueprint, render_template, flash, request, g, session
-
-from flaskr.auth import login_required
+from flask import Blueprint, request, jsonify
 from flaskr.dao.aluno_dao import AlunoDAO
 from flaskr.dao.transacao_dao import TransacaoDAO
 
 bp = Blueprint('aluno', __name__, url_prefix='/aluno')
 
-
-@login_required
-@bp.route('/aluno', methods=('GET', 'POST'))
+@bp.route('/aluno', methods=['POST'])
 def aluno():
     """
-    Função que exibe a página de um aluno.
-    :return: Renderiza a página de beneficiar um aluno
+    Função que exibe as informações de um aluno.
+    curl -X POST http://localhost:5000/aluno/aluno -H "Content-Type: application/json" -d "{\"matricula\": \"1\"}"
     """
-    if 'matricula' not in session:
-        flash("Usuário não encontrado")
-        return render_template('error.html')
-
-    matricula = session['matricula']
-    if matricula is None:
-        flash("Usuário não encontrado")
-        return render_template('error.html')
+    data = request.json
+    matricula = data.get('matricula')
 
     aluno_obj = AlunoDAO().get_aluno(matricula)
     if aluno_obj is None:
-        flash("Aluno não encontrado")
-        return render_template('error.html')
+        return jsonify({'message': 'Aluno nao encontrado'}), 400
 
-    return render_template('aluno.html', aluno=aluno_obj)
+    return jsonify({'aluno': aluno_obj.__dict__()}), 200
 
-
-@login_required
-@bp.route('/historico', methods=('GET', 'POST'))
+@bp.route('/historico', methods=['POST'])
 def historico():
     """
     Função que exibe o histórico de transações de um aluno.
-    :return: Renderiza a página de histórico de transações de um aluno
+    curl -X POST http://localhost:5000/aluno/historico -H "Content-Type: application/json" -d "{\"matricula\": \"1\"}"
     """
+    data = request.json
+    matricula = data.get('matricula')
+
     try:
-        matricula = session['matricula']
         aluno_obj = AlunoDAO().get_aluno(matricula)
         transacoes_list = TransacaoDAO().get_transacoes_aluno(matricula)
     except Exception as e:
-        flash("Erro ao buscar histórico de transações: " + str(e))
-        return render_template('/')
+        return jsonify({'message': 'Erro ao buscar historico de transacoes: ' + str(e)}), 400
 
-    return render_template('aluno/historico.html', aluno=aluno_obj, transacoes=transacoes_list)
+    return jsonify({'aluno': aluno_obj.__dict__(), 'transacoes': [trans.__dict__() for trans in transacoes_list]}), 200

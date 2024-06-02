@@ -1,9 +1,8 @@
+from flask import Flask, render_template, redirect, url_for, session
+from flask_cors import CORS
 import os
-
 from flaskr.dao.user_dao import UserDAO
 from flaskr.utils import db
-from flask import Flask, render_template, redirect, url_for, session
-
 
 def create_app(test_config=None):
     """
@@ -12,6 +11,7 @@ def create_app(test_config=None):
     :return: retorna a aplicação Flask criada
     """
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
@@ -31,25 +31,7 @@ def create_app(test_config=None):
         pass
 
     # Inicializando o banco de dados
-    from flaskr.utils import db
     db.init_app(app)
-
-    @app.route('/')
-    def index():
-        """
-        Rota principal da aplicação, retorna uma mensagem de boas-vindas.
-        :return: Retorna uma mensagem de boas-vindas
-        """
-        if 'matricula' in session:
-            matricula = session['matricula']
-            dao = UserDAO()
-            user = dao.get_user(matricula)
-            if user.tipo == 'aluno':
-                return redirect(url_for('aluno.aluno'))
-            elif user.tipo == 'professor':
-                return redirect(url_for('professor.professor'))
-
-        return render_template('index.html')
 
     from . import aluno, auth, error, grupo, loja, professor, qrcode, turma
     app.register_blueprint(aluno.bp)

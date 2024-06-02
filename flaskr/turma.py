@@ -1,5 +1,4 @@
-from flask import Blueprint, render_template, session, request, flash
-from flaskr.auth import login_required
+from flask import Blueprint, request, jsonify
 from flaskr.dao.aluno_dao import AlunoDAO
 from flaskr.dao.turma_dao import TurmaDAO
 from flaskr.dao.user_dao import UserDAO
@@ -7,44 +6,37 @@ from flaskr.dao.user_dao import UserDAO
 bp = Blueprint('turma', __name__, url_prefix='/turma')
 
 
-@login_required
-@bp.route('/informacao/<int:id_turma>', methods=('GET', 'POST'))
-def informacao(id_turma):
+@bp.route('/informacao', methods=('GET', 'POST'))
+def informacao():
     """
     Exibe informações da turma
-    :param id_turma: id da turma
     :return: informações da turma
     """
-    matricula = session['matricula']
+    data = request.json
+    id_turma = int(data['id_turma'])
+    matricula = data['matricula']
+
     if matricula is None:
-        flash("Usuário não encontrado")
-        return render_template('/')
+        return jsonify({'message': 'Usuario nao encontrado'}), 401
 
     user = UserDAO().get_user(matricula)
     turma = TurmaDAO().get_turma_by_id(id_turma)
 
     if turma is None or user is None:
-        flash("Turma não encontrada")
-        return render_template('/')
+        return jsonify({'message': 'Turma nao encontrada'}), 401
 
-    if request.method == 'POST':
-        matricula = request.form['matricula']
-        aluno = AlunoDAO().get_aluno(matricula)
+    aluno = AlunoDAO().get_aluno(matricula)
 
-        if aluno is None:
-            flash('Usuário não encontrado')
-            return render_template('turma/informacao.html', turma=turma, user=user)
+    if aluno is None:
+        return jsonify({'message': 'Usuario não encontrado'}), 401
 
-        aluno.id_turma = turma.id_turma
+    aluno.id_turma = turma.id_turma
 
-        if AlunoDAO().update_aluno(aluno):
-            flash('Aluno adicionado com sucesso')
-            turma = TurmaDAO().get_turma_by_id(id_turma)
-            return render_template('turma/informacao.html', turma=turma, user=user)
-        else:
-            flash('Usuário não encontrado')
-
-    return render_template('turma/informacao.html', turma=turma, user=user)
+    if AlunoDAO().update_aluno(aluno):
+        turma = TurmaDAO().get_turma_by_id(id_turma)
+        return jsonify({'turma': turma.__dict__(), 'user': user.__dict__()}), 200
+    else:
+        return jsonify({'message': 'Erro ao atualizar turma'}), 401
 
 
 @bp.route('/criar', methods=('GET', 'POST'))
@@ -53,22 +45,23 @@ def criar():
     Cria uma nova turma
     :return: página de criação de turma
     """
-    user = UserDAO().get_user(session['matricula'])
+    data = request.json
+    matricula = data['matricula']
+    nome = data['nome']
 
-    if request.method == 'POST':
-        nome = request.form['nome']
+    user = UserDAO().get_user(matricula)
 
-        if nome is None:
-            flash('Nome da turma não pode ser vazio')
-            return render_template('turma/criar.html')
+    if user.tipo != 'professor':
+        return jsonify({'message': 'Usuario nao e professor'}), 401
 
-        turma = TurmaDAO().insert_turma(nome, user.matricula)
-        if turma:
-            return render_template('turma/informacao.html', turma=turma, user=user)
-        else:
-            flash('Erro ao criar turma')
+    if nome is None:
+        return jsonify({'message': 'Nome da turma não pode ser vazio'}), 401
 
-    return render_template('turma/criar.html')
+    turma = TurmaDAO().insert_turma(nome, user.matricula)
+    if turma:
+        return jsonify({'turma': turma.__dict__()}), 200
+    else:
+        return jsonify({'message': 'Erro ao criar turma'}), 401
 
 
 @bp.route('/entrar', methods=('GET', 'POST'))
@@ -77,14 +70,19 @@ def entrar():
     Entra em uma turma
     :return: página de entrada em turma
     """
-    user = UserDAO().get_user(session['matricula'])
+    data = request.json
+    matricula = data['matricula']
+    nome_turma = data['nome']
 
-    if request.method == 'POST':
-        nome_turma = request.form['nome']
-        if AlunoDAO().update_aluno_turma(user.matricula, nome_turma):
-            turma = TurmaDAO().get_turma_by_nome(nome_turma)
-            return render_template('turma/informacao.html', turma=turma, user=user)
-        else:
-            flash('Erro ao entrar na turma')
+    user = UserDAO().get_user(matricula)
+    turma = TurmaDAO().get_turma_by_nome(nome_turma)
 
-    return render_template('turma/entrar.html')
+    if turma is None:
+        return jsonify({'message': 'Turma não encontrada'}), 401
+
+    if AlunoDAO().update_aluno_turma(user.matricula, turma.id_turma):
+        turma_atualizada = TurmaDAO().get_turma_by_nome(nome_turma)
+        user_atualizado = UserDAO().get_user(matricula)
+        return jsonify({'turma': turma_atualizada.__dict__(), 'user': user_atualizado.__dict__()}), 200
+    else:
+        return jsonify({'message': 'Erro ao entrar na turma'}), 401

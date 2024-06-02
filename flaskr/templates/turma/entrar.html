@@ -1,7 +1,17 @@
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 <h1>ENTRAR LOJA</h1>
 
 <h2>FORM</h2>
-<form>
+<form method="post">
     <label for="nome">Nome:</label>
     <input type="text" name="nome" id="nome">
     <br>
