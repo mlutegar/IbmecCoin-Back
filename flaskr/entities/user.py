@@ -6,7 +6,7 @@ class User:
         self.nome = nome
         self.email = email
 
-    def to_dict(self):
+    def __dict__(self):
         return {
             "matricula": self.matricula,
             "senha": self.senha,

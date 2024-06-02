@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, request, session
+from flask import Blueprint, render_template, flash, request, session, jsonify
 
 from flaskr.auth import login_required
 from flaskr.dao.aluno_dao import AlunoDAO
@@ -10,26 +10,25 @@ bp = Blueprint('professor', __name__, url_prefix='/professor')
 
 
 @login_required
-@bp.route('/professor', methods=('GET', 'POST'))
-def professor():
+@bp.route('/informacao', methods=['POST'])
+def informacao():
     """
     Função que exibe a página de um aluno.
     :return: Renderiza a página de beneficiar um aluno
     """
-    if 'matricula' not in session:
-        flash("Usuário não encontrado")
-        return render_template('/')
+    data = request.json
+    matricula = data['matricula']
 
-    professor_obj = ProfessorDAO().get_professor(session['matricula'])
-
-    matricula = session['matricula']
-    if matricula is None:
-        flash("Usuário não encontrado")
-        return render_template('/')
-
+    professor_obj = ProfessorDAO().get_professor(matricula)
     turmas = TurmaDAO().get_all_turmas_by_professor_matricula(professor_obj.matricula)
 
-    return render_template('professor.html', professor=professor_obj, turmas=turmas)
+    if professor_obj and turmas:
+        return jsonify({
+            'professor': professor_obj.__dict__(),
+            'turmas': [turma.__dict__() for turma in turmas]
+        }), 200
+
+    return jsonify({'message': 'Erro na requisição'}), 401
 
 
 @bp.route('/beneficiar', methods=('GET', 'POST'))
@@ -48,15 +47,15 @@ def beneficiar():
 
         if quantidade == "" or matricula == "":
             flash("Preencha todos os campos")
-            return render_template('professor/beneficiar.html',  alunos=alunos)
+            return render_template('professor/beneficiar.html', alunos=alunos)
 
         if not quantidade.isnumeric():
             flash("Quantidade inválida")
-            return render_template('professor/beneficiar.html',  alunos=alunos)
+            return render_template('professor/beneficiar.html', alunos=alunos)
 
         if aluno is None:
             flash("Usuário não encontrado")
-            return render_template('professor/beneficiar.html',  alunos=alunos)
+            return render_template('professor/beneficiar.html', alunos=alunos)
 
         aluno.saldo += int(quantidade)
 

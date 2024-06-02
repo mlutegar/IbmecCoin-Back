@@ -4,7 +4,7 @@ class Convite:
         self.id_grupo = id_grupo
         self.convidado_matricula = convidado_matricula
 
-    def to_dict(self):
+    def __dict__(self):
         return {
             "id_convite": self.id_convite,
             "id_grupo": self.id_grupo,

@@ -22,10 +22,10 @@ class Turma:
             return 0
         return len(self.turma)
 
-    def to_dict(self):
+    def __dict__(self):
         return {
             'id_turma': self.id_turma,
             'nome': self.nome,
-            'professor': self.professor.to_dict(),
-            'turma': [aluno.to_dict() for aluno in self.turma]
+            'professor': self.professor.__dict__(),
+            'turma': [aluno.__dict__() for aluno in self.turma] if self.turma else []
         }

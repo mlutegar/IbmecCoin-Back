@@ -12,7 +12,7 @@ class Item:
         self.nome = nome
         self.valor = valor
 
-    def to_dict(self):
+    def __dict__(self):
         return {
             'id_item': self.id_item,
             'nome': self.nome,

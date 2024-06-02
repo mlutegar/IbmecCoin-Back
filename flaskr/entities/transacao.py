@@ -5,7 +5,7 @@ class Transacao:
         self.valor = valor
         self.data = data
 
-    def to_dict(self):
+    def __dict__(self):
         return {
             "emissor_id": self.emissor_id,
             "receptor_id": self.receptor_id,

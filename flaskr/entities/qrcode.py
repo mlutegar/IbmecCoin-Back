@@ -21,7 +21,7 @@ class QrCode:
             return False
         return True
 
-    def to_dict(self):
+    def __dict__(self):
         return {
             "id_token": self.id_token,
             "token": self.token,

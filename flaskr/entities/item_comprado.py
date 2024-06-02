@@ -13,7 +13,7 @@ class ItemComprado:
         self.aluno = aluno_matricula
         self.data_compra = datetime.now()
 
-    def to_dict(self):
+    def __dict__(self):
         return {
             "item": self.item,
             "aluno": self.aluno,

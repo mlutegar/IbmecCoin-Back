@@ -22,7 +22,7 @@ class Grupo:
         self.criador_id = matricula
         self.membros = membros
 
-    def to_dict(self):
+    def __dict__(self):
         """
         Método que transforma o objeto em um dicionário
 

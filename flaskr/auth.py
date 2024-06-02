@@ -24,7 +24,7 @@ def loginTeste():
 
     user = authenticate(username, password)
     if user:
-        return jsonify({'user': user.to_dict_without_senha()}), 200
+        return jsonify({'user': user.__dict__()}), 200
     return jsonify({'message': 'Invalid credentials'}), 401
 
 
