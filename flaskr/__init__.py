@@ -33,23 +33,6 @@ def create_app(test_config=None):
     # Inicializando o banco de dados
     db.init_app(app)
 
-    @app.route('/')
-    def index():
-        """
-        Rota principal da aplicação, retorna uma mensagem de boas-vindas.
-        :return: Retorna uma mensagem de boas-vindas
-        """
-        if 'matricula' in session:
-            matricula = session['matricula']
-            dao = UserDAO()
-            user = dao.get_user(matricula)
-            if user.tipo == 'aluno':
-                return redirect(url_for('aluno.aluno'))
-            elif user.tipo == 'professor':
-                return redirect(url_for('professor.professor'))
-
-        return render_template('index.html')
-
     from . import aluno, auth, error, grupo, loja, professor, qrcode, turma
     app.register_blueprint(aluno.bp)
     app.register_blueprint(auth.bp)

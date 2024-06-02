@@ -1,5 +1,4 @@
-from flask import Blueprint, render_template, session, request, flash, redirect, url_for, jsonify
-from flaskr.auth import login_required
+from flask import Blueprint, request, jsonify
 from flaskr.dao.aluno_dao import AlunoDAO
 from flaskr.dao.turma_dao import TurmaDAO
 from flaskr.dao.user_dao import UserDAO
@@ -7,31 +6,29 @@ from flaskr.dao.user_dao import UserDAO
 bp = Blueprint('turma', __name__, url_prefix='/turma')
 
 
-@login_required
-@bp.route('/informacao/<int:id_turma>', methods=('GET', 'POST'))
-def informacao(id_turma):
+@bp.route('/informacao', methods=('GET', 'POST'))
+def informacao():
     """
     Exibe informações da turma
-    :param id_turma: id da turma
     :return: informações da turma
     """
     data = request.json
-    id_turma = data['id_turma']
-    matricula = session['matricula']
+    id_turma = int(data['id_turma'])
+    matricula = data['matricula']
 
     if matricula is None:
-        return jsonify({'message': 'Usuário não encontrado'}), 401
+        return jsonify({'message': 'Usuario nao encontrado'}), 401
 
     user = UserDAO().get_user(matricula)
     turma = TurmaDAO().get_turma_by_id(id_turma)
 
     if turma is None or user is None:
-        return jsonify({'message': 'Turma não encontrada'}), 401
+        return jsonify({'message': 'Turma nao encontrada'}), 401
 
     aluno = AlunoDAO().get_aluno(matricula)
 
     if aluno is None:
-        return jsonify({'message': 'Usuário não encontrado'}), 401
+        return jsonify({'message': 'Usuario não encontrado'}), 401
 
     aluno.id_turma = turma.id_turma
 
@@ -53,6 +50,9 @@ def criar():
     nome = data['nome']
 
     user = UserDAO().get_user(matricula)
+
+    if user.tipo != 'professor':
+        return jsonify({'message': 'Usuario nao e professor'}), 401
 
     if nome is None:
         return jsonify({'message': 'Nome da turma não pode ser vazio'}), 401

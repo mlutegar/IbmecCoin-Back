@@ -1,6 +1,4 @@
-from flask import Blueprint, render_template, flash, request, session, jsonify
-
-from flaskr.auth import login_required
+from flask import Blueprint, request, jsonify
 from flaskr.dao.aluno_dao import AlunoDAO
 from flaskr.dao.professor_dao import ProfessorDAO
 from flaskr.dao.transacao_dao import TransacaoDAO
@@ -9,17 +7,20 @@ from flaskr.dao.turma_dao import TurmaDAO
 bp = Blueprint('professor', __name__, url_prefix='/professor')
 
 
-@login_required
 @bp.route('/informacao', methods=['POST'])
 def informacao():
     """
-    Função que exibe a página de um aluno.
-    :return: Renderiza a página de beneficiar um aluno
+    Função que exibe as informações de um professor e suas turmas.
+    curl -X POST http://localhost:5000/professor/informacao -H "Content-Type: application/json" -d "{\"matricula\": \"1\"}"
     """
     data = request.json
     matricula = data['matricula']
 
     professor_obj = ProfessorDAO().get_professor(matricula)
+
+    if professor_obj is None:
+        return jsonify({'message': 'Professor nao encontrado'}), 400
+
     turmas = TurmaDAO().get_all_turmas_by_professor_matricula(professor_obj.matricula)
 
     if professor_obj and turmas:
@@ -28,56 +29,49 @@ def informacao():
             'turmas': [turma.__dict__() for turma in turmas]
         }), 200
 
-    return jsonify({'message': 'Erro na requisição'}), 401
+    return jsonify({'message': 'Erro na requisicao'}), 401
 
 
-@bp.route('/beneficiar', methods=('GET', 'POST'))
+@bp.route('/beneficiar', methods=['POST'])
 def beneficiar():
     """
-    Função que exibe a página de beneficiar um aluno.
-    :return: Renderiza a página de beneficiar um aluno
+    Função que beneficia um aluno com uma quantia.
+    curl -X POST http://localhost:5000/professor/beneficiar -H "Content-Type: application/json" -d "{\"matricula\": \"1\", \"usuario\": \"2\", \"quantidade\": \"10\"}"
     """
+    data = request.json
+    quantidade = data['quantidade']
+    matricula = data['usuario']
+
     alunoDao = AlunoDAO()
-    alunos = alunoDao.get_all_alunos()
+    aluno = alunoDao.get_aluno(matricula)
 
-    if request.method == 'POST':
-        quantidade = request.form['quantidade']
-        matricula = request.form['usuario']
-        aluno = alunoDao.get_aluno(matricula)
+    if not quantidade or not matricula:
+        return jsonify({'message': 'Preencha todos os campos'}), 400
 
-        if quantidade == "" or matricula == "":
-            flash("Preencha todos os campos")
-            return render_template('professor/beneficiar.html', alunos=alunos)
+    if not quantidade.isnumeric():
+        return jsonify({'message': 'Quantidade invalida'}), 400
 
-        if not quantidade.isnumeric():
-            flash("Quantidade inválida")
-            return render_template('professor/beneficiar.html', alunos=alunos)
+    if aluno is None:
+        return jsonify({'message': 'Usuario nao encontrado'}), 400
 
-        if aluno is None:
-            flash("Usuário não encontrado")
-            return render_template('professor/beneficiar.html', alunos=alunos)
+    aluno.saldo += int(quantidade)
 
-        aluno.saldo += int(quantidade)
+    if alunoDao.update_aluno(aluno):
+        return jsonify({'message': 'Aluno beneficiado com sucesso', 'aluno': aluno.__dict__()}), 200
 
-        if alunoDao.update_aluno(aluno):
-            alunos = alunoDao.get_all_alunos()
-            flash("Aluno beneficiado com sucesso")
-            return render_template('professor/beneficiar.html', alunos=alunos)
-
-    return render_template('professor/beneficiar.html', alunos=alunos)
+    return jsonify({'message': 'Erro ao beneficiar aluno'}), 400
 
 
-@bp.route('/transacoes', methods=('GET', 'POST'))
+@bp.route('/transacoes', methods=['POST'])
 def transacoes():
     """
-    Função que exibe a página de transferências de todas as transferências dos alunos.
-    :return: Renderiza a página de transferências de todas as transferências dos alunos
+    Função que retorna todas as transações dos alunos.
+    curl -X POST http://localhost:5000/professor/transacoes -H "Content-Type: application/json"
     """
     transacao = TransacaoDAO()
     transacoes = transacao.get_all_transacoes()
 
     if not transacoes:
-        flash("Nenhuma transação encontrada")
-        return render_template('professor/transacoes.html')
+        return jsonify({'message': 'Nenhuma transacao encontrada'}), 400
 
-    return render_template('professor/transacoes.html', transacoes=transacoes)
+    return jsonify({'transacoes': [trans.__dict__() for trans in transacoes]}), 200

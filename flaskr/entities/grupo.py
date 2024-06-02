@@ -33,5 +33,5 @@ class Grupo:
             "nome": self.nome,
             "descricao": self.descricao,
             "criador_id": self.criador_id,
-            "membros": self.membros
+            "membros": [membro.__dict__() for membro in self.membros] if self.membros else []
         }
