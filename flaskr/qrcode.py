@@ -1,3 +1,4 @@
+import base64
 import secrets
 import segno
 import io
@@ -66,48 +67,48 @@ def leitor():
     """
     data = request.json
     id_form = data['id_form']
+    matricula = data['matricula']
 
     if id_form == 'validate_qr':
         token = data['token']
         tk = QrCodeDAO()
         if tk.get_qrcode(token) is not None:
-            return jsonify({
-                'token': token
-            }), 200
+            return validar(token, matricula)
         else:
-            return jsonify({'message': "Validate_qr - Token invalido"}), 400
+            return jsonify({'message': "Token invalido"}), 400
 
-    elif id_form == 'upload_file':
-        file = data['file']
-        if file and file.filename != '':
-            # Carregar a imagem em memória usando imageio
-            image = imageio.v2.imread(io.BytesIO(file.read()))
-            # Decodificar o QR code
-            decoded_objects = decode(image)
-            if decoded_objects:
-                token = decoded_objects[0].data.decode('utf-8')
-                tk = QrCodeDAO()
-                if tk.get_qrcode(token) is not None:
-                    return jsonify({'token': token}), 200
+    if id_form == 'upload_file':
+        base64_file = data['file']
+        if base64_file:
+            try:
+                # Decodificar a string base64
+                image_data = base64.b64decode(base64_file)
+                image = imageio.v2.imread(io.BytesIO(image_data))
+
+                # Decodificar o QR code
+                decoded_objects = decode(image)
+                if decoded_objects:
+                    token = decoded_objects[0].data.decode('utf-8')
+                    tk = QrCodeDAO()
+                    if tk.get_qrcode(token) is not None:
+                        return validar(token, matricula)
+                    else:
+                        return jsonify({'message': "upload_file - Erro ao validar o token"}), 400
                 else:
-                    return jsonify({'message': "upload_file - Erro ao validar o token"}), 400
-            else:
-                return jsonify({'message': "Nenhum QR code encontrado na imagem"}), 400
+                    return jsonify({'message': "Nenhum QR code encontrado na imagem"}), 400
+            except Exception as e:
+                return jsonify({'message': f"Erro ao processar a imagem: {str(e)}"}), 500
+        else:
+            return jsonify({'message': "Nenhum arquivo foi enviado"}), 400
 
     return jsonify({'message': "Erro ao escolher o tipo de envio do token"}), 400
 
-
-@bp.route('/validar', methods=('GET', 'POST'))
-def validar():
+def validar(token, matricula):
     """
     Função que valida um token, adiciona saldo na conta do usuário aluno e o desativa.
     :param token: Token a ser utilizado no qrcode
     :return: Renderiza a página de sucesso
     """
-    data = request.json
-    token = data['token']
-    matricula = data['matricula']
-
     aluno = AlunoDAO().get_aluno(matricula)
     qrcode = QrCodeDAO().get_qrcode(token)
 
@@ -117,7 +118,7 @@ def validar():
     if qrcode.validade_data > datetime.now():
         AlunoDAO().update_aumentar_saldo(aluno.matricula, qrcode.valor)
         QrCodeDAO().update_diminuir_qtd_usos(qrcode.token)
-        return jsonify({'message': "Token validado com sucesso"}), 200
+        return jsonify({'message': "Token validado com sucesso", 'token': token}), 200
     else:
         return jsonify({'message': "Token vencido"}), 400
 

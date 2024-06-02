@@ -4,7 +4,7 @@ from flaskr.dao.transacao_dao import TransacaoDAO
 
 bp = Blueprint('aluno', __name__, url_prefix='/aluno')
 
-@bp.route('/aluno', methods=['POST'])
+@bp.route('/informacao', methods=['POST'])
 def aluno():
     """
     Função que exibe as informações de um aluno.
@@ -18,6 +18,15 @@ def aluno():
         return jsonify({'message': 'Aluno nao encontrado'}), 400
 
     return jsonify({'aluno': aluno_obj.__dict__()}), 200
+
+@bp.route('/alunos', methods=['GET'])
+def alunos():
+    """
+    Função que exibe as informações de todos os alunos.
+    curl -X GET http://localhost:5000/aluno/alunos
+    """
+    alunos_list = AlunoDAO().get_all_alunos()
+    return jsonify({'alunos': [aluno.__dict__() for aluno in alunos_list]}), 200
 
 @bp.route('/historico', methods=['POST'])
 def historico():
