@@ -215,7 +215,7 @@ class AlunoDAO(UserDAO):
             return False
         return True
 
-    def update_aluno_turma(self, matricula: int, id_turma: int):
+    def update_entrar_turma(self, matricula: int, id_turma: int):
         """
         Atualiza a turma de um aluno no banco de dados.
         :param matricula: Matrícula do aluno
@@ -233,7 +233,7 @@ class AlunoDAO(UserDAO):
             return False
         return True
 
-    def aceitar_convite(self, id_grupo, convidado_matricula):
+    def update_entrar_grupo(self, id_grupo, convidado_matricula):
         """
         Aceita um convite no banco de dados.
         :param id_grupo: ID do grupo
@@ -245,6 +245,23 @@ class AlunoDAO(UserDAO):
             db.execute(
                 "UPDATE aluno SET id_grupo = ? WHERE matricula = ?",
                 (id_grupo, convidado_matricula),
+            )
+            db.commit()
+        except db.IntegrityError:
+            return False
+        return True
+
+    def update_sair_grupo(self, matricula):
+        """
+        Remove um aluno de um grupo no banco de dados.
+        :param matricula: Matrícula do aluno
+        :return: Retorna True se o aluno foi removido do grupo com sucesso, False caso contrário.
+        """
+        db = get_db()
+        try:
+            db.execute(
+                "UPDATE aluno SET id_grupo = NULL WHERE matricula = ?",
+                (matricula,),
             )
             db.commit()
         except db.IntegrityError:

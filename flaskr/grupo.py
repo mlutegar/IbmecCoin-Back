@@ -40,17 +40,41 @@ def criar():
     aluno = AlunoDAO().get_aluno(matricula)
     grupoDao = GrupoDAO()
 
-    if not grupoDao.insert_grupo(nome, 5, descricao, aluno.matricula):
+    grupo = grupoDao.insert_grupo(nome, 5, descricao, aluno.matricula)
+    if grupo is None:
         return jsonify({'message': 'Grupo ja existe'}), 400
 
-    aluno.id_grupo = grupoDao.get_grupo_by_matricula(aluno.matricula).id_grupo
+    aluno.id_grupo = grupo.id_grupo
+
     if not AlunoDAO().update_aluno(aluno):
         return jsonify({'message': 'Erro ao atualizar aluno'}), 400
 
-    return jsonify(
-        {'message': 'Grupo criado com sucesso', 'grupo': grupoDao.get_grupo_by_matricula(aluno.matricula).__dict__(),
-         'aluno': aluno.__dict__()}), 200
+    return jsonify({
+            'message': 'Grupo criado com sucesso',
+            'grupo': grupo.__dict__(),
+            'aluno': aluno.__dict__()
+        }), 200
 
+@bp.route('/sair', methods=['POST'])
+def sair():
+    """
+    Função que remove o aluno do grupo.
+    curl -X POST http://localhost:5000/grupo/sair -H "Content-Type: application/json" -d "{\"matricula\": \"1\"}"
+    """
+    data = request.json
+    matricula = data['matricula']
+
+    aluno = AlunoDAO().get_aluno(matricula)
+
+    if aluno.id_grupo is None:
+        return jsonify({'message': 'Aluno nao esta em nenhum grupo'}), 400
+
+    grupo = GrupoDAO().get_grupo_by_id(aluno.id_grupo)
+
+    if not AlunoDAO().update_sair_grupo(aluno.matricula):
+        return jsonify({'message': 'Erro ao sair do grupo'}), 400
+
+    return jsonify({'message': 'Aluno removido do grupo', 'grupo': grupo.__dict__(), 'aluno': aluno.__dict__()}), 200
 
 @bp.route('/transferir', methods=['POST'])
 def transferir():
@@ -111,9 +135,18 @@ def convites():
     """
     data = request.json
     matricula = data['matricula']
-
     aluno = AlunoDAO().get_aluno(matricula)
+
+    if aluno is None:
+        return jsonify({'message': 'Aluno nao encontrado'}), 400
+
     convites_lista = ConviteDAO().get_all_convites_by_matricula(aluno.matricula)
+    if convites_lista is None:
+        return jsonify({
+            'message': 'Nenhum convite encontrado',
+            'convites': [],
+            'aluno': aluno.__dict__()
+                        }), 400
 
     return jsonify({'convites': [convite.__dict__() for convite in convites_lista], 'aluno': aluno.__dict__()}), 200
 
@@ -134,7 +167,7 @@ def aceitar():
     if convite is None:
         return jsonify({'message': 'Convite nao encontrado'}), 400
 
-    if AlunoDAO().aceitar_convite(convite.id_grupo, convite.convidado_matricula):
+    if AlunoDAO().update_entrar_grupo(convite.id_grupo, convite.convidado_matricula):
         grupo = GrupoDAO().get_grupo_by_id(convite.id_grupo)
         user.id_grupo = grupo.id_grupo
         AlunoDAO().update_aluno(user)
@@ -144,3 +177,22 @@ def aceitar():
             {'message': 'Convite aceito com sucesso', 'grupo': grupo.__dict__(), 'aluno': user.__dict__()}), 200
 
     return jsonify({'message': 'Erro ao aceitar convite'}), 400
+
+@bp.route('/recusar', methods=['POST'])
+def recusar():
+    """
+    Função que recusa um convite de um grupo.
+    curl -X POST http://localhost:5000/grupo/recusar -H "Content-Type: application/json" -d "{\"id_convite\": \"1\"}"
+    """
+    data = request.json
+    id_convite = data['id_convite']
+
+    convite = ConviteDAO().get_convite(id_convite)
+
+    if convite is None:
+        return jsonify({'message': 'Convite nao encontrado'}), 400
+
+    ConviteDAO().delete_convite(convite.id_convite)
+
+    return jsonify({'message': 'Convite recusado com sucesso'}), 200
+

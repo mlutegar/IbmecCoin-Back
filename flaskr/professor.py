@@ -62,11 +62,11 @@ def beneficiar():
     return jsonify({'message': 'Erro ao beneficiar aluno'}), 400
 
 
-@bp.route('/transacoes', methods=['POST'])
+@bp.route('/transacoes', methods=['GET'])
 def transacoes():
     """
     Função que retorna todas as transações dos alunos.
-    curl -X POST http://localhost:5000/professor/transacoes -H "Content-Type: application/json"
+    curl -X GET http://localhost:5000/professor/transacoes
     """
     transacao = TransacaoDAO()
     transacoes = transacao.get_all_transacoes()

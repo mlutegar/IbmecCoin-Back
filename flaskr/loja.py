@@ -28,6 +28,20 @@ def loja():
 
     return jsonify({'itens': [item.__dict__() for item in lista_itens], 'user': user.__dict__()}), 200
 
+
+@bp.route('/itens', methods=['GET'])
+def itens():
+    """
+    Função que retorna em json os itens da loja.
+    curl -X GET http://localhost:5000/loja/itens
+    """
+    lista_itens = LojaDAO().get_all_items()
+
+    if lista_itens is None:
+        return jsonify({'message': 'Erro ao carregar a pagina da loja'}), 400
+
+    return jsonify({'itens': [item.__dict__() for item in lista_itens]}), 200
+
 @bp.route('/criar', methods=['POST'])
 def criar():
     """
@@ -46,15 +60,12 @@ def criar():
 
     return jsonify({'message': 'Erro ao adicionar item'}), 400
 
-@bp.route('/item', methods=['POST'])
-def item():
+@bp.route('/item/<int:id_item>', methods=['GET'])
+def item(id_item):
     """
     Função que retorna em json um item da loja.
-    curl -X POST http://localhost:5000/loja/item -H "Content-Type: application/json" -d "{\"id_item\": \"1\"}"
+    curl -X GET http://localhost:5000/loja/item/1
     """
-    data = request.json
-    id_item = data['id_item']
-
     item_obj = LojaDAO().get_item(id_item)
 
     if item_obj is None:

@@ -13,26 +13,38 @@ class GrupoDAO:
     - get_all_grupo(): Seleciona todos os grupos no banco de dados
     - update_grupo(id_grupo, **kwargs): Atualiza os campos de um grupo no banco de dados
     """
+
     @staticmethod
-    def insert_grupo(nome, valor_max, descricao, criador_matricula):
+    def insert_grupo(nome, valor_max, descricao, criador_matricula) -> Grupo:
         """
         Insere um grupo no banco de dados
         :param nome: nome do grupo
         :param valor_max: valor máximo de saldo que um aluno pode ter no grupo
         :param descricao: descrição do grupo
         :param criador_matricula: matrícula do criador do grupo
-        :return: True se o grupo foi inserido com sucesso, False caso contrário
+        :return: Grupo inserido com sucesso, ou None em caso de falha
         """
+        grupo = Grupo(
+            None,
+            nome,
+            descricao,
+            valor_max,
+            criador_matricula,
+            []
+        )
+
         db = get_db()
         try:
-            db.execute(
+            cursor = db.execute(
                 "INSERT INTO grupo (nome, quantidade_max, descricao, criador_matricula) VALUES (?, ?, ?, ?)",
-                (nome, valor_max, descricao, criador_matricula),
+                (grupo.nome, grupo.quantidade_max, grupo.descricao, grupo.matricula_criador)
             )
             db.commit()
+            grupo.id_grupo = cursor.lastrowid  # Atribui o ID gerado ao grupo
         except db.IntegrityError:
-            return False
-        return True
+            return None
+
+        return grupo
 
     @staticmethod
     def get_grupo_by_id(id_grupo):
@@ -50,6 +62,7 @@ class GrupoDAO:
                 result['id_grupo'],
                 result['nome'],
                 result['descricao'],
+                result['quantidade_max'],
                 result['criador_matricula'],
                 alunos
             )
@@ -72,6 +85,7 @@ class GrupoDAO:
                 result['id_grupo'],
                 result['nome'],
                 result['descricao'],
+                result['quantidade_max'],
                 result['criador_matricula'],
                 alunos
             )
@@ -96,6 +110,7 @@ class GrupoDAO:
                     grupo['id_grupo'],
                     grupo['nome'],
                     grupo['descricao'],
+                    grupo['quantidade_max'],
                     grupo['criador_matricula'],
                     alunos
                 )
