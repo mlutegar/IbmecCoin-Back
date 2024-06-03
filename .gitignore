@@ -5,6 +5,7 @@
 # Ignorar arquivos compilados do Python
 __pycache__/
 *.pyc
+venv/
 
 ### react ###
 .DS_*
