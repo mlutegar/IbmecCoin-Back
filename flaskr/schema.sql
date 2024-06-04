@@ -96,19 +96,19 @@ CREATE TABLE item_comprado (
 INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (202208385192, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'aluno', 'Michel Lutegar', '202208285192@alunos.ibmec.edu.br');
 INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (202208385371, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'aluno', 'André Costa', '202208385371@alunos.ibmec.edu.br');
 INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (15912411702, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'professor', 'Victor Antonio', '15912411702@professores.ibmec.edu.br');
-INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (4, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'aluno', 'd', 'd@d');
+INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (202208385102, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'aluno', 'Lionel Messi', '202208385371@alunos.ibmec.edu.br');
 
 INSERT INTO aluno (matricula, id_grupo, saldo, id_turma) VALUES (202208385192, 1, 100, 1);
 INSERT INTO aluno (matricula, id_grupo, saldo, id_turma) VALUES (202208385371, 1, 100, 1);
-INSERT INTO aluno (matricula, id_grupo, saldo, id_turma) VALUES (4, null, 100, null);
+INSERT INTO aluno (matricula, id_grupo, saldo, id_turma) VALUES (202208385102, null, 100, null);
 INSERT INTO professor (matricula) VALUES (15912411702);
 
 INSERT INTO turma (nome, professor_matricula) VALUES ('Design UX e UI', 15912411702);
 
-INSERT INTO grupo (nome, descricao, criador_matricula) VALUES ('Grupo Back-End', 'Grupo responsável pelo Back-end', 1);
+INSERT INTO grupo (nome, descricao, criador_matricula) VALUES ('Grupo Back-End', 'Grupo responsável pelo Back-end', 202208385192);
 
 INSERT INTO convite (id_grupo, convidado_matricula) VALUES (1, 202208385371);
-INSERT INTO convite (id_grupo, convidado_matricula) VALUES (1, 4);
+INSERT INTO convite (id_grupo, convidado_matricula) VALUES (1, 202208385102);
 
 INSERT INTO item_loja (nome, valor) VALUES ('1 Ponto na Prova', 30);
 INSERT INTO item_loja (nome, valor) VALUES ('AC', 35);
@@ -117,7 +117,7 @@ INSERT INTO item_loja (nome, valor) VALUES ('Um abono de falta', 50);
 INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (202208385192, 202208385371, 10);
 INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (202208385371, 202208385192, 20);
 INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (202208385192, 202208385371, 30);
-INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (202208385371, 4, 120);
+INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (202208385371, 202208385102, 120);
 
 INSERT INTO item_comprado (item_id, aluno_id) VALUES (1, 202208385192);
 INSERT INTO item_comprado (item_id, aluno_id) VALUES (2, 202208385192);
