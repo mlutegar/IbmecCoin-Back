@@ -196,3 +196,15 @@ def recusar():
 
     return jsonify({'message': 'Convite recusado com sucesso'}), 200
 
+@bp.route('/grupos', methods=['GET'])
+def grupos():
+    """
+    Função que exibe todos os grupos.
+    curl -X GET http://localhost:5000/grupo/grupos
+    """
+    grupos = GrupoDAO().get_all_grupo()
+
+    if grupos is None:
+        return jsonify({'message': 'Nenhum grupo encontrado'}), 400
+
+    return jsonify({'grupos': [grupo.__dict__() for grupo in grupos]}), 200
