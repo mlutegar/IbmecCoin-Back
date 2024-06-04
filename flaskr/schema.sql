@@ -93,34 +93,34 @@ CREATE TABLE item_comprado (
 
 -- INSERTS INICIAIS PARA TESTES
 
-INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (1, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'aluno', 'a', 'a@a');
-INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (2, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'aluno', 'b', 'b@b');
-INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (3, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'professor', 'c', 'c@c');
+INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (202208385192, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'aluno', 'Michel Lutegar', '202208285192@alunos.ibmec.edu.br');
+INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (202208385371, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'aluno', 'André Costa', '202208385371@alunos.ibmec.edu.br');
+INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (15912411702, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'professor', 'Victor Antonio', '15912411702@professores.ibmec.edu.br');
 INSERT INTO user (matricula, senha, tipo, nome, email) VALUES (4, 'scrypt:32768:8:1$NOgQlSaLqt2lJEdZ$f73dd2078bedd534b641577ec64a5b379e06c2473b9def9ee683dcf91e7ac2e4482eada8a7a1ee13e54991050b8b3b0dba7a287d6586dfcfbdd5ae2de922fae3', 'aluno', 'd', 'd@d');
 
-INSERT INTO aluno (matricula, id_grupo, saldo, id_turma) VALUES (1, 1, 100, 1);
-INSERT INTO aluno (matricula, id_grupo, saldo, id_turma) VALUES (2, 1, 100, 1);
+INSERT INTO aluno (matricula, id_grupo, saldo, id_turma) VALUES (202208385192, 1, 100, 1);
+INSERT INTO aluno (matricula, id_grupo, saldo, id_turma) VALUES (202208385371, 1, 100, 1);
 INSERT INTO aluno (matricula, id_grupo, saldo, id_turma) VALUES (4, null, 100, null);
-INSERT INTO professor (matricula) VALUES (3);
+INSERT INTO professor (matricula) VALUES (15912411702);
 
-INSERT INTO turma (nome, professor_matricula) VALUES ('turma1', 3);
+INSERT INTO turma (nome, professor_matricula) VALUES ('Design UX e UI', 15912411702);
 
-INSERT INTO grupo (nome, descricao, criador_matricula) VALUES ('grupo1', 'descricao', 1);
+INSERT INTO grupo (nome, descricao, criador_matricula) VALUES ('Grupo Back-End', 'Grupo responsável pelo Back-end', 1);
 
-INSERT INTO convite (id_grupo, convidado_matricula) VALUES (1, 2);
+INSERT INTO convite (id_grupo, convidado_matricula) VALUES (1, 202208385371);
 INSERT INTO convite (id_grupo, convidado_matricula) VALUES (1, 4);
 
-INSERT INTO item_loja (nome, valor) VALUES ('item1', 10);
-INSERT INTO item_loja (nome, valor) VALUES ('item2', 20);
-INSERT INTO item_loja (nome, valor) VALUES ('item3', 30);
+INSERT INTO item_loja (nome, valor) VALUES ('1 Ponto na Prova', 30);
+INSERT INTO item_loja (nome, valor) VALUES ('AC', 35);
+INSERT INTO item_loja (nome, valor) VALUES ('Um abono de falta', 50);
 
-INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (1, 2, 10);
-INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (2, 1, 20);
-INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (1, 2, 30);
-INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (2, 4, 120);
+INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (202208385192, 202208385371, 10);
+INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (202208385371, 202208385192, 20);
+INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (202208385192, 202208385371, 30);
+INSERT INTO transacao (emissor_id, receptor_id, valor) VALUES (202208385371, 4, 120);
 
-INSERT INTO item_comprado (item_id, aluno_id) VALUES (1, 1);
-INSERT INTO item_comprado (item_id, aluno_id) VALUES (2, 1);
+INSERT INTO item_comprado (item_id, aluno_id) VALUES (1, 202208385192);
+INSERT INTO item_comprado (item_id, aluno_id) VALUES (2, 202208385192);
 
 INSERT INTO qrcode (token, valor, validade_data, qtd_usos) VALUES ('123', 10, '2020-12-12 12:12:12', 10);
 INSERT INTO qrcode (token, valor, validade_data, qtd_usos) VALUES ('456', 20, '2025-12-12 12:12:12', 10);
