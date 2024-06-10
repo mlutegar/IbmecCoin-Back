@@ -23,7 +23,10 @@ def informacao():
 
     turmas = TurmaDAO().get_all_turmas_by_professor_matricula(professor_obj.matricula)
 
-    if professor_obj and turmas:
+    if not turmas:
+        turmas = []
+
+    if professor_obj:
         return jsonify({
             'professor': professor_obj.__dict__(),
             'turmas': [turma.__dict__() for turma in turmas]

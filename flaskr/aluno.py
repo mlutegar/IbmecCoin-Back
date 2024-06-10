@@ -21,7 +21,11 @@ def aluno():
     turmas = TurmaDAO().get_all_turmas_by_id_aluno(matricula)
     grupos = GrupoDAO().get_all_grupos_by_matricula_aluno(matricula)
 
-    if aluno_obj and turmas:
+    if not turmas and not grupos:
+        turmas = []
+        grupos = []
+
+    if aluno_obj:
         return jsonify({
             'aluno': aluno_obj.__dict__(),
             'turmas': [turma.__dict__() for turma in turmas],

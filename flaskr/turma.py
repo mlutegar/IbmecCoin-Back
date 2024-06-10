@@ -22,6 +22,17 @@ def informacao():
 
     return jsonify({'turma': turma.__dict__()}), 200
 
+@bp.route('/turmas', methods=['POST'])
+def turmas():
+    """
+    Função que exibe as informações de todas as turmas. A partir da matricula do professor, ele busca todas as turmas
+    """
+    data = request.json
+    matricula = data['matricula']
+
+    turmas = TurmaDAO().get_all_turmas_by_professor_matricula(matricula)
+    return jsonify({'turmas': [turma.__dict__() for turma in turmas]}), 200
+
 
 @bp.route('/adicionar_aluno', methods=['POST'])
 def adicionar_aluno():
@@ -43,9 +54,6 @@ def adicionar_aluno():
         return jsonify({'message': 'Turma nao encontrada'}), 400
 
     aluno = AlunoDAO().get_aluno(matricula_aluno_novo)
-
-    if aluno.id_turma == turma.id_turma:
-        return jsonify({'message': 'Aluno ja esta na turma'}), 400
 
     if aluno is None:
         return jsonify({'message': 'Usuario nao encontrado'}), 400
