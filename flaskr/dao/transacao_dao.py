@@ -11,7 +11,8 @@ class TransacaoDAO:
     Classe que representa um DAO (Data Access Object) para operações de transferência de saldo entre contas.
 
     Métodos:
-        - insert_transacao(quantidade, remetente, destinatario): Função que registra a transação de uma conta para outra.
+        - insert_transacao(quantidade, remetente, destinatario):
+        Função que registra a transação de uma conta para outra.
         - get_all_transacoes(): Função que retorna todas as transações registradas no sistema.
     """
 
@@ -25,7 +26,6 @@ class TransacaoDAO:
         :param emissor_id: ID do aluno que está enviando o saldo.
         :param receptor_id: ID do aluno que está recebendo o saldo.
         :param valor: Valor da transação.
-        :param data: Data da transação.
         :return: None
         """
         transacao = Transacao(emissor_id, receptor_id, valor, datetime.datetime.now())
@@ -40,10 +40,6 @@ class TransacaoDAO:
             db.commit()
         except db.IntegrityError:
             return False
-
-        AlunoDAO().update_diminuir_saldo(transacao.emissor_id, transacao.valor)
-        AlunoDAO().update_aumentar_saldo(transacao.receptor_id, transacao.valor)
-
         return True
 
     @staticmethod
@@ -72,8 +68,7 @@ class TransacaoDAO:
         except db.IntegrityError:
             return False
 
-        aluno.saldo -= item.valor
-        AlunoDAO().update_aluno(aluno)
+        AlunoDAO().update_diminuir_saldo(aluno.matricula, item.valor)
         return True
 
     @staticmethod
@@ -98,7 +93,7 @@ class TransacaoDAO:
     def get_transacoes_aluno(matricula):
         """
         Função que retorna todas as transações de um aluno.
-        :param matricula: matrícula do aluno.
+        :param matricula: Matrícula do aluno.
         :return: Lista de transações.
         """
         lista_transacoes = []

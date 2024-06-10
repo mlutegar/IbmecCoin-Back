@@ -6,7 +6,7 @@ import imageio
 
 from datetime import datetime
 from flaskr.dao.aluno_dao import AlunoDAO
-from flask import Blueprint, flash, redirect, render_template, request, url_for, session, jsonify
+from flask import Blueprint, request, jsonify
 from pyzbar.pyzbar import decode
 from flaskr.dao.qrcode_dao import QrCodeDAO
 
@@ -24,6 +24,7 @@ def criar():
     valor = data['valor']
     validade_data = data['validade_data']
     qtd_usos = data['qtd_usos']
+    id_turma = data['id_turma']
 
     try:
         validade_data = datetime.strptime(validade_data, '%Y-%m-%d')
@@ -33,7 +34,7 @@ def criar():
     tk = QrCodeDAO()
     token = secrets.token_urlsafe()
 
-    if tk.insert_qrcode(token, int(valor), validade_data, int(qtd_usos)):
+    if tk.insert_qrcode(id_turma, token, int(valor), validade_data, int(qtd_usos)):
         return jsonify({'token': token}), 200
     else:
         return jsonify({'message': "Erro ao criar o token"}), 400
@@ -103,10 +104,12 @@ def leitor():
 
     return jsonify({'message': "Erro ao escolher o tipo de envio do token"}), 400
 
+
 def validar(token, matricula):
     """
     Função que valida um token, adiciona saldo na conta do usuário aluno e o desativa.
     :param token: Token a ser utilizado no qrcode
+    :param matricula: Matrícula do aluno
     :return: Renderiza a página de sucesso
     """
     aluno = AlunoDAO().get_aluno(matricula)
@@ -121,6 +124,7 @@ def validar(token, matricula):
         return jsonify({'message': "Token validado com sucesso", 'token': token}), 200
     else:
         return jsonify({'message': "Token vencido"}), 400
+
 
 def recuperarUltimoToken():
     """

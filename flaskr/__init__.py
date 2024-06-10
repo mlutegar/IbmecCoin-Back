@@ -1,8 +1,9 @@
-from flask import Flask, render_template, redirect, url_for, session
+from flask import Flask
 from flask_cors import CORS
 import os
 from flaskr.dao.user_dao import UserDAO
 from flaskr.utils import db
+
 
 def create_app(test_config=None):
     """
@@ -33,10 +34,9 @@ def create_app(test_config=None):
     # Inicializando o banco de dados
     db.init_app(app)
 
-    from . import aluno, auth, error, grupo, loja, professor, qrcode, turma
+    from . import aluno, auth, grupo, loja, professor, qrcode, turma
     app.register_blueprint(aluno.bp)
     app.register_blueprint(auth.bp)
-    app.register_blueprint(error.bp)
     app.register_blueprint(grupo.bp)
     app.register_blueprint(loja.bp)
     app.register_blueprint(professor.bp)

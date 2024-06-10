@@ -2,8 +2,9 @@ from datetime import datetime
 
 
 class QrCode:
-    def __init__(self, id_token, token, valor, validade_data, qtd_usos, validade=True):
+    def __init__(self, id_token, id_turma, token, valor, validade_data, qtd_usos, validade=True):
         self.id_token = id_token
+        self.id_turma = id_turma
         self.token = token
         self.valor = valor
         self.validade_data = validade_data
@@ -24,6 +25,7 @@ class QrCode:
     def __dict__(self):
         return {
             "id_token": self.id_token,
+            "id_turma": self.id_turma,
             "token": self.token,
             "valor": self.valor,
             "validade_data": self.validade_data,

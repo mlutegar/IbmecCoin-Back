@@ -1,5 +1,4 @@
-import functools
-from flask import Blueprint, request, session, url_for, jsonify, g, redirect
+from flask import Blueprint, request, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 from flaskr.dao.aluno_dao import AlunoDAO
 from flaskr.dao.professor_dao import ProfessorDAO
@@ -7,6 +6,7 @@ from flaskr.dao.user_dao import UserDAO
 from flaskr.utils.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
+
 
 @bp.route('/registro', methods=['POST'])
 def registro():
@@ -21,6 +21,8 @@ def registro():
     email = data.get('email')
     tipo = data.get('tipo')
     error = None
+
+    dao = UserDAO()
 
     if not matricula:
         error = 'Matricula is required.'
@@ -74,3 +76,23 @@ def login():
         return jsonify({'message': 'Invalid credentials'}), 401
 
     return jsonify({'message': 'Login successful', 'user': user.__dict__()}), 200
+
+
+# curl -X POST http://localhost:5000/auth/verificar-usuario -H "Content-Type: application/json" -d "{\"matricula\": \"1\"}"
+@bp.route('/verificar-usuario', methods=['POST'])
+def verificar_usuario():
+    """
+    Função para verificar se um usuário está logado.
+    """
+    data = request.json
+    matricula = data.get('matricula')
+
+    if not matricula:
+        return jsonify({'message': 'Matricula é obrigatoria.'}), 400
+
+    user = UserDAO().get_user(matricula)
+
+    if user is None:
+        return jsonify({'message': 'User not found'}), 400
+
+    return jsonify({'message': 'User found', 'user': user.__dict__()}), 200

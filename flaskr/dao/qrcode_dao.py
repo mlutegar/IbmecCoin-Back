@@ -17,16 +17,24 @@ class QrCodeDAO:
     def __init__(self):
         self.lista_qrcode = self.__inicializa_qrcode()
 
-    def insert_qrcode(self, token: str, valor: int, validade_data, qtd_usos):
+    def insert_qrcode(self, id_turma, token: str, valor: int, validade_data, qtd_usos):
         """
         Função que insere um novo token
+        :param id_turma: id da turma
         :param token: token a ser inserido
         :param valor: valor do token
         :param validade_data: validade do token
         :param qtd_usos: quantidade de usos do token
         :return: True se o token foi inserido com sucesso, False caso contrário
         """
-        qrcode = QrCode(self.__get_last_id_lista_qrcode() + 1, token, valor, validade_data, qtd_usos)
+        qrcode = QrCode(
+            self.__get_last_id_lista_qrcode() + 1,
+            id_turma,
+            token,
+            valor,
+            validade_data,
+            qtd_usos
+        )
 
         db = get_db()
         try:
@@ -56,6 +64,7 @@ class QrCodeDAO:
 
         token = QrCode(
             resultado['id_token'],
+            resultado['id_turma'],
             resultado['token'],
             resultado['valor'],
             resultado['validade_data'],
@@ -99,6 +108,7 @@ class QrCodeDAO:
         for qr_code in resultado:
             qrcode = QrCode(
                 qr_code['id_token'],
+                qr_code['id_turma'],
                 qr_code['token'],
                 qr_code['valor'],
                 qr_code['validade_data'],
@@ -157,6 +167,7 @@ class QrCodeDAO:
         for qr_code in resultado:
             qrcode = QrCode(
                 qr_code['id_token'],
+                qr_code['id_turma'],
                 qr_code['token'],
                 qr_code['valor'],
                 qr_code['validade_data'],

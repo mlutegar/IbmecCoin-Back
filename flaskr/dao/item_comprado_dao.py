@@ -1,6 +1,5 @@
 from flaskr.dao.aluno_dao import AlunoDAO
 from flaskr.dao.loja_dao import LojaDAO
-from flaskr.entities.aluno import Aluno
 from flaskr.entities.item import Item
 from flaskr.utils.db import get_db
 
@@ -60,6 +59,7 @@ class ItemCompradoDAO:
         for row in resultado:
             item = Item(
                 row['id_item'],
+                row['id_turma'],
                 row['nome'],
                 row['valor']
             )

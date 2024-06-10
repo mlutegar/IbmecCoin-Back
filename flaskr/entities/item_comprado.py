@@ -1,8 +1,5 @@
 from datetime import datetime
 
-from flaskr.entities.aluno import Aluno
-from flaskr.entities.item import Item
-
 
 class ItemComprado:
     """

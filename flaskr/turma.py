@@ -10,22 +10,17 @@ bp = Blueprint('turma', __name__, url_prefix='/turma')
 def informacao():
     """
     Função que exibe as informações de uma turma.
-    curl -X POST http://localhost:5000/turma/informacao -H "Content-Type: application/json" -d "{\"id_turma\": \"1\", \"matricula\": \"123\"}"
+    curl -X POST http://localhost:5000/turma/informacao -H "Content-Type: application/json" -d "{\"id_turma\": \"1\"}"
     """
     data = request.json
     id_turma = int(data['id_turma'])
-    matricula = data['matricula']
 
-    if matricula is None:
-        return jsonify({'message': 'Usuario nao encontrado'}), 400
-
-    user = UserDAO().get_user(matricula)
     turma = TurmaDAO().get_turma_by_id(id_turma)
 
-    if turma is None or user is None:
+    if turma is None:
         return jsonify({'message': 'Turma nao encontrada'}), 400
 
-    return jsonify({'turma': turma.__dict__(), 'user': user.__dict__()}), 200
+    return jsonify({'turma': turma.__dict__()}), 200
 
 
 @bp.route('/adicionar_aluno', methods=['POST'])
@@ -55,9 +50,7 @@ def adicionar_aluno():
     if aluno is None:
         return jsonify({'message': 'Usuario nao encontrado'}), 400
 
-    aluno.id_turma = turma.id_turma
-
-    if AlunoDAO().update_aluno(aluno):
+    if AlunoDAO().update_aluno_turma(aluno.matricula, turma.id_turma):
         return jsonify({'message': 'Aluno adicionado com sucesso', 'aluno': aluno.__dict__()}), 200
     else:
         return jsonify({'message': 'Erro ao atualizar turma'}), 400
@@ -68,6 +61,7 @@ def criar():
     """
     Cria uma nova turma
     :return: página de criação de turma
+    curl -X POST http://localhost:5000/turma/criar -H "Content-Type: application/json" -d "{\"matricula\": \"123\", \"nome\": \"turma1\"}"
     """
     data = request.json
     matricula = data['matricula']

@@ -1,4 +1,5 @@
 from flaskr.dao.aluno_dao import AlunoDAO
+from flaskr.dao.loja_dao import LojaDAO
 from flaskr.entities.turma import Turma
 from flaskr.utils.db import get_db
 from flaskr.dao.professor_dao import ProfessorDAO
@@ -11,7 +12,7 @@ class TurmaDAO:
     def insert_turma(self, nome: str, professor_matricula: int):
         professor = ProfessorDAO().get_professor(professor_matricula)
 
-        turma = Turma(int(self.get_last_id_turma()) + 1, nome, professor, [])
+        turma = Turma(int(self.get_last_id_turma()) + 1, nome, professor, [], [])
         self.lista_turmas.append(turma)
 
         db = get_db()
@@ -31,11 +32,32 @@ class TurmaDAO:
                 return turma
         return None
 
-    def get_turma_by_nome(self, nome: str) -> Turma:
+    def get_turma_by_nome(self, nome: str) -> Turma | None:
         for turma in self.lista_turmas:
             if turma.nome == nome:
                 return turma
         return None
+
+    def get_all_turmas_by_id_aluno(self, aluno_matricula: int):
+        """
+        Retorna uma lista de turmas que um aluno está inscrito. Ele busca todas as relações aluno-turma no banco de
+        dados pelo id do aluno, e a partir do id das turmas ele cria uma lista de objetos Turma e adiciona todas as
+        turmas nessa lista. E retorna essa lista.
+
+        :param aluno_matricula: Int
+
+        :return: list
+        """
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT turma_id FROM aluno_turma WHERE aluno_matricula=?", (aluno_matricula,))
+        id_turmas = cursor.fetchall()
+
+        lista_turmas = []
+        for id_turma in id_turmas:
+            turma_obj = self.get_turma_by_id(id_turma[0])
+            lista_turmas.append(turma_obj)
+        return lista_turmas
 
     def get_all_turmas_by_professor_matricula(self, professor_matricula: int):
         turmas = []
@@ -46,8 +68,9 @@ class TurmaDAO:
 
     def remover_turma(self, turma):
         self.lista_turmas.remove(turma)
-        
-    def __inicializar_turmas(self):
+
+    @staticmethod
+    def __inicializar_turmas():
         db = get_db()
         resultado = db.execute(
             "SELECT * FROM turma"
@@ -60,12 +83,14 @@ class TurmaDAO:
         for row in resultado:
             alunos = AlunoDAO().get_all_alunos_by_id_turma(row['id_turma'])
             professor = ProfessorDAO().get_professor(row['professor_matricula'])
+            itens = LojaDAO().get_all_itens_by_id_turma(row['id_turma'])
 
             turma = Turma(
                 row['id_turma'],
                 row['nome'],
                 professor,
-                alunos
+                alunos,
+                itens
             )
             turmas.append(turma)
 

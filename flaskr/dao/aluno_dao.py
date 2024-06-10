@@ -60,9 +60,7 @@ class AlunoDAO(UserDAO):
                 user.senha,
                 user.nome,
                 user.email,
-                resultado['id_grupo'],
-                resultado['saldo'],
-                resultado['id_turma']
+                resultado['saldo']
             )
             return aluno
         return None
@@ -89,9 +87,7 @@ class AlunoDAO(UserDAO):
                 user.senha,
                 user.nome,
                 user.email,
-                row['id_grupo'],
                 row['saldo'],
-                row['id_turma']
             )
             alunos.append(aluno)
 
@@ -104,7 +100,7 @@ class AlunoDAO(UserDAO):
         """
         db = get_db()
         resultado = db.execute(
-            "SELECT * FROM aluno WHERE id_grupo = ?", (id_grupo,)
+            "SELECT aluno_matricula, saldo FROM aluno_turma WHERE id_grupo = ?", (id_grupo,)
         ).fetchall()
 
         if not resultado:
@@ -112,67 +108,53 @@ class AlunoDAO(UserDAO):
 
         alunos = []
         for row in resultado:
-            user = super().get_user(row['matricula'])
+            user = self.get_aluno(row['aluno_matricula'])
 
             aluno = Aluno(
                 user.matricula,
                 user.senha,
                 user.nome,
                 user.email,
-                row['id_grupo'],
-                row['saldo'],
-                row['id_turma']
+                row['saldo']
             )
             alunos.append(aluno)
 
         return alunos
 
-    def get_all_alunos_by_id_turma(self, id_turma):
+    def get_all_alunos_by_id_turma(self, turma_id: int):
         """
-        Seleciona todos os alunos no banco de dados de uma turma específica.
-        :return: Lista de objetos do tipo Aluno, ou None se não houver alunos
+        Retorna uma lista de alunos que estão inscritos em uma turma. Ele busca todos as relações aluno-turma no banco
+        de dados pelo o id, e a partir do id do alunos ele cria uma lista de objetos Aluno e adiciona todos os alunos
+        nessa lista. E retorna essa lista.
+
+        :param turma_id: int
+
+        :return: list
         """
         db = get_db()
-        resultado = db.execute(
-            "SELECT * FROM aluno WHERE id_turma = ?", (id_turma,)
-        ).fetchall()
+        cursor = db.cursor()
+        cursor.execute("SELECT aluno_matricula, saldo FROM aluno_turma WHERE turma_id=?", (turma_id,))
+        alunos_turma = cursor.fetchall()
 
-        if not resultado:
-            return None
+        tupla_aluno_saldo = []
+        for aluno_turma in alunos_turma:
+            aluno = self.get_aluno(aluno_turma[0])
+            tupla_aluno_saldo.append((aluno, aluno_turma[1]))
 
-        alunos = []
-        for row in resultado:
-            user = super().get_user(row['matricula'])
+        return tupla_aluno_saldo
 
-            aluno = Aluno(
-                user.matricula,
-                user.senha,
-                user.nome,
-                user.email,
-                row['id_grupo'],
-                row['saldo'],
-                row['id_turma']
-            )
-            alunos.append(aluno)
-
-        return alunos
-
-    def update_aluno(self, aluno: Aluno):
+    def update_aluno_turma(self, matricula, id_turma):
         """
-        Atualiza os campos de um usuário no banco de dados com base nos argumentos fornecidos.
-        :param aluno: Objeto do tipo Aluno
-        :return: True se o usuário foi atualizado com sucesso, False caso contrário
+        Atualiza a turma de um aluno no banco de dados.
+        :param matricula: Matrícula do aluno
+        :param id_turma: ID da turma
+        :return: True se a turma foi atualizada com sucesso, False caso contrário
         """
-        user = super().update_user(aluno)
-
-        if not user:
-            return False
-
         db = get_db()
         try:
             db.execute(
-                "UPDATE aluno SET id_grupo = ?, saldo = ?, id_turma = ? WHERE matricula = ?",
-                (aluno.id_grupo, aluno.saldo, aluno.id_turma, aluno.matricula)
+                "UPDATE aluno_turma SET turma_id = ? WHERE aluno_matricula = ?",
+                (id_turma, matricula),
             )
             db.commit()
         except db.IntegrityError:
@@ -225,43 +207,69 @@ class AlunoDAO(UserDAO):
         db = get_db()
         try:
             db.execute(
-                "UPDATE aluno SET id_turma = ? WHERE matricula = ?",
-                (id_turma, matricula)
+                "INSERT INTO aluno_turma (aluno_matricula, turma_id) VALUES (?, ?)",
+                (matricula, id_turma),
             )
             db.commit()
         except db.IntegrityError:
             return False
         return True
 
-    def update_entrar_grupo(self, id_grupo, convidado_matricula):
+    def update_entrar_grupo(self, id_grupo, id_turma, convidado_matricula):
         """
         Aceita um convite no banco de dados.
         :param id_grupo: ID do grupo
+        :param id_turma: ID da turma
         :param convidado_matricula: Matrícula do convidado
         :return: Retorna True se o convite foi aceito com sucesso, False caso contrário.
         """
         db = get_db()
         try:
             db.execute(
-                "UPDATE aluno SET id_grupo = ? WHERE matricula = ?",
-                (id_grupo, convidado_matricula),
+                "UPDATE aluno_turma SET id_grupo = ? WHERE aluno_matricula = ? AND turma_id = ?",
+                (id_grupo, convidado_matricula, id_turma),
             )
             db.commit()
         except db.IntegrityError:
             return False
         return True
 
-    def update_sair_grupo(self, matricula):
+    def update_sair_grupo(self, matricula, id_turma):
         """
         Remove um aluno de um grupo no banco de dados.
         :param matricula: Matrícula do aluno
+        :param id_turma: ID da turma
         :return: Retorna True se o aluno foi removido do grupo com sucesso, False caso contrário.
         """
         db = get_db()
         try:
             db.execute(
-                "UPDATE aluno SET id_grupo = NULL WHERE matricula = ?",
-                (matricula,),
+                "UPDATE aluno_turma SET id_grupo = NULL WHERE aluno_matricula = ? AND turma_id = ?",
+                (matricula, id_turma),
+            )
+            db.commit()
+        except db.IntegrityError:
+            return False
+        return True
+
+    def transferir_saldo_grupo(self, remetente_matricula, destinatario_matricula, quantidade, id_turma):
+        """
+        Transfere saldo de um aluno para outro aluno.
+        :param remetente_matricula: Matrícula do remetente
+        :param destinatario_matricula: Matrícula do destinatário
+        :param quantidade: Quantidade de saldo a ser transferida
+        :param id_turma: ID da turma
+        :return: Retorna True se a transferência foi realizada com sucesso, False caso contrário.
+        """
+        db = get_db()
+        try:
+            db.execute(
+                "UPDATE aluno_turma SET saldo = saldo - ? WHERE aluno_matricula = ? AND turma_id = ?",
+                (quantidade, remetente_matricula, id_turma),
+            )
+            db.execute(
+                "UPDATE aluno_turma SET saldo = saldo + ? WHERE aluno_matricula = ? AND turma_id = ?",
+                (quantidade, destinatario_matricula, id_turma),
             )
             db.commit()
         except db.IntegrityError:

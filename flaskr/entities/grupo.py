@@ -1,12 +1,9 @@
-from flaskr.dao.aluno_dao import AlunoDAO
-
-
 class Grupo:
     """
     Classe que representa um grupo de estudo
     """
 
-    def __init__(self, id_grupo, nome, descricao, quantidade_max, matricula, membros: list = None):
+    def __init__(self, id_grupo, nome, descricao, quantidade_max, matricula, id_turma, membros: list = None):
         """
         Construtor da classe Grupo
 
@@ -16,6 +13,7 @@ class Grupo:
         :param quantidade_max: quantidade máxima de membros do grupo
         :param matricula: id do criador do grupo
         :param membros: lista de membros do grupo
+        :param id_turma: id da turma a qual o grupo pertence
         """
         self.id_grupo = id_grupo
         self.nome = nome
@@ -23,6 +21,7 @@ class Grupo:
         self.quantidade_max = quantidade_max
         self.matricula_criador = matricula
         self.membros = membros
+        self.id_turma = id_turma
 
     def __dict__(self):
         """
@@ -35,5 +34,7 @@ class Grupo:
             "nome": self.nome,
             "descricao": self.descricao,
             "criador_id": self.matricula_criador,
-            "membros": [membro.__dict__() for membro in self.membros] if self.membros else []
+            "membros": [membro.__dict__() for membro in self.membros] if self.membros else [],
+            "quantidade_max": self.quantidade_max,
+            "id_turma": self.id_turma
         }

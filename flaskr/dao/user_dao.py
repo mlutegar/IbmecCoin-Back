@@ -1,4 +1,3 @@
-# UserDao: classe responsável por realizar operações no banco de dados relacionadas a entidade User
 from flaskr.utils.db import get_db
 from flaskr.entities.user import User
 
@@ -66,6 +65,26 @@ class UserDAO:
         if result:
             user = User(result['matricula'], result['senha'], result['tipo'], result['nome'], result['email'])
             return user
+        return None
+
+    def get_saldo_by_turma(self, matricula, id_turma):
+        """
+        Seleciona o saldo de um usuário em uma turma no banco de dados.
+        :param matricula: Matrícula do usuário
+        :param id_turma: id da turma
+        :return: Saldo do usuário na turma
+        """
+        db = get_db()
+
+        if int(id_turma) == 0:
+            query = "SELECT saldo FROM aluno WHERE matricula = ?"
+            result = db.execute(query, (matricula,)).fetchone()
+        else:
+            query = "SELECT saldo FROM aluno_turma WHERE aluno_matricula = ? AND turma_id = ?"
+            result = db.execute(query, (matricula, id_turma)).fetchone()
+
+        if result:
+            return result['saldo']
         return None
 
     @staticmethod
