@@ -50,8 +50,11 @@ def adicionar_aluno():
     user = UserDAO().get_user(matricula_aluno_novo)
     turma = TurmaDAO().get_turma_by_id(id_turma)
 
-    if turma is None or user is None:
+    if turma is None:
         return jsonify({'message': 'Turma nao encontrada'}), 400
+
+    if user is None:
+        return jsonify({'message': 'Usuario nao encontrado'}), 400
 
     aluno = AlunoDAO().get_aluno(matricula_aluno_novo)
 
@@ -112,3 +115,13 @@ def entrar():
         return jsonify({'turma': turma_atualizada.__dict__(), 'user': user_atualizado.__dict__()}), 200
     else:
         return jsonify({'message': 'Erro ao entrar na turma'}), 400
+
+@bp.route('/all-turmas', methods=['GET'])
+def all_turmas():
+    """
+    Retorna todas as turmas
+    :return: página de turmas
+    curl -X GET http://localhost:5000/turma/all-turmas
+    """
+    list_turmas = TurmaDAO().get_all_turmas()
+    return jsonify({'turmas': [turma.__dict__() for turma in list_turmas]}), 200

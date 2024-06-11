@@ -35,29 +35,32 @@ def criar():
     """
     # Pegar valores
     data = request.json
-    matricula = data['matricula']
-    nome = data['nome']
-    descricao = data['descricao']
-    id_turma = data['id_turma']
+    matricula = data.get('matricula')
+    nome = data.get('nome')
+    descricao = data.get('descricao')
+    id_turma = data.get('id_turma')
 
     if matricula is None or nome is None or descricao is None or id_turma is None:
         return jsonify({'message': 'Dados inválidos'}), 400
 
     aluno = AlunoDAO().get_aluno(matricula)
-    grupoDao = GrupoDAO()
+    if not aluno:
+        return jsonify({'message': 'Aluno não encontrado'}), 404
 
+    grupoDao = GrupoDAO()
     grupo = grupoDao.insert_grupo(nome, 5, descricao, aluno.matricula, id_turma)
     if grupo is None:
-        return jsonify({'message': 'Grupo ja existe'}), 400
+        return jsonify({'message': 'Grupo já existe'}), 400
 
-    if not AlunoDAO().update_entrar_grupo(aluno.matricula, grupo.id_grupo, id_turma):
+    if not AlunoDAO().update_entrar_grupo(grupo.id_grupo, id_turma, aluno.matricula):
         return jsonify({'message': 'Erro ao atualizar aluno'}), 400
 
     return jsonify({
-            'message': 'Grupo criado com sucesso',
-            'grupo': grupo.__dict__(),
-            'aluno': aluno.__dict__()
-        }), 200
+        'message': 'Grupo criado com sucesso',
+        'grupo': grupo.__dict__(),
+        'aluno': aluno.__dict__()
+    }), 200
+
 
 
 @bp.route('/sair', methods=['POST'])

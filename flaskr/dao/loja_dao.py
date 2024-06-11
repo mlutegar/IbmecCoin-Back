@@ -14,10 +14,16 @@ class LojaDAO:
         """
         db = get_db()
         try:
-            db.execute(
-                "INSERT INTO item_loja (id_turma, nome, valor) VALUES (?, ?, ?)",
-                (id_turma, nome, valor),
-            )
+            if id_turma is None:
+                db.execute(
+                    "INSERT INTO item_loja (nome, valor) VALUES (?, ?)",
+                    (nome, valor),
+                )
+            else:
+                db.execute(
+                    "INSERT INTO item_loja (id_turma, nome, valor) VALUES (?, ?, ?)",
+                    (id_turma, nome, valor),
+                )
             db.commit()
         except db.IntegrityError:
             return False

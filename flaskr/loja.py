@@ -60,8 +60,14 @@ def criar():
     valor = data.get('valor')
     id_turma = data.get('id_turma')
 
-    if not nome or not valor or not id_turma:
-        return jsonify({'message': 'Preencha todos os campos'}), 400
+    if not nome:
+        return jsonify({'message': 'Nome não preenchido'}), 400
+
+    if not valor:
+        return jsonify({'message': 'Valor não preenchido'}), 400
+
+    if int(id_turma) == 0:
+        id_turma = None
 
     if LojaDAO().insert_item(id_turma, nome, valor):
         return jsonify({'itens': [item.__dict__() for item in LojaDAO().get_all_items()]}), 200

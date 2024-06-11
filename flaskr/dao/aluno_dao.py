@@ -224,13 +224,21 @@ class AlunoDAO(UserDAO):
         :return: Retorna True se o convite foi aceito com sucesso, False caso contrário.
         """
         db = get_db()
+        verificacao = self.update_sair_grupo(convidado_matricula, id_turma)
         try:
-            db.execute(
-                "UPDATE aluno_turma SET id_grupo = ? WHERE aluno_matricula = ? AND turma_id = ?",
-                (id_grupo, convidado_matricula, id_turma),
-            )
+            if verificacao:
+                db.execute(
+                    "UPDATE aluno_turma SET id_grupo = ? WHERE aluno_matricula = ? AND turma_id = ?",
+                    (id_grupo, convidado_matricula, id_turma),
+                )
+            else:
+                db.execute(
+                    "INSERT INTO aluno_turma (aluno_matricula, turma_id, id_grupo) VALUES (?, ?, ?)",
+                    (convidado_matricula, id_turma, id_grupo),
+                )
             db.commit()
-        except db.IntegrityError:
+        except db.IntegrityError as e:
+            print(f'IntegrityError: {e}')
             return False
         return True
 

@@ -38,6 +38,9 @@ class TurmaDAO:
                 return turma
         return None
 
+    def get_all_turmas(self):
+        return self.lista_turmas
+
     def get_all_turmas_by_id_aluno(self, aluno_matricula: int):
         """
         Retorna uma lista de turmas que um aluno está inscrito. Ele busca todas as relações aluno-turma no banco de
