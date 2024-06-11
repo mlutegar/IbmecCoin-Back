@@ -260,6 +260,22 @@ class AlunoDAO(UserDAO):
             return False
         return True
 
+    def verificar_aluno_turma(self, matricula, id_turma):
+        """
+        Verifica se um aluno está em uma turma.
+        :param matricula: Matrícula do aluno
+        :param id_turma: ID da turma
+        :return: Retorna True se o aluno está na turma, False caso contrário.
+        """
+        db = get_db()
+        resultado = db.execute(
+            "SELECT * FROM aluno_turma WHERE aluno_matricula = ? AND turma_id = ?", (matricula, id_turma)
+        ).fetchone()
+
+        if resultado:
+            return True
+        return False
+
     def transferir_saldo_grupo(self, remetente_matricula, destinatario_matricula, quantidade, id_turma):
         """
         Transfere saldo de um aluno para outro aluno.

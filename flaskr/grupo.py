@@ -142,6 +142,9 @@ def convidar():
     if grupo is None:
         return jsonify({'message': 'Grupo nao encontrado'}), 400
 
+    if not AlunoDAO().verificar_aluno_turma(destinatario.matricula, id_turma):
+        return jsonify({'message': 'Aluno nao pertence a turma'}), 400
+
     if not ConviteDAO().insert_convite(grupo.id_grupo, grupo.id_turma, destinatario.matricula):
         return jsonify({'message': 'Convite nao enviado'}), 400
 
@@ -173,7 +176,10 @@ def convites():
             'aluno': aluno.__dict__()
                         }), 400
 
-    return jsonify({'convites': [convite.__dict__() for convite in convites_lista], 'aluno': aluno.__dict__()}), 200
+    return (jsonify({
+        'convites': [convite.__dict__() for convite in convites_lista],
+        'aluno': aluno.__dict__()}),
+            200)
 
 
 @bp.route('/aceitar', methods=['POST'])
